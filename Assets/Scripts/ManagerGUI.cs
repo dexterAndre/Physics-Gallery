@@ -7,6 +7,15 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 
+
+/*
+    To-do:
+    [X] Top bar foldout
+    [ ] Transition to main menu
+        - Async loading / disabling / unloading scenes?
+*/
+
+
 /*
 ################# Legend #################
 
@@ -143,6 +152,9 @@ public class ManagerGUI : MonoBehaviour
     [SerializeField] private AnimationCurve animTopBarCollapse;
     [SerializeField] private AnimationCurve animTopBarExpand;
     [SerializeField] private AnimationCurve animTopBarTransition;
+    [SerializeField] private Image topBarFoldOutIconUp;
+    [SerializeField] private Image topBarFoldOutIconDown;
+    [SerializeField] private Image topBarFoldOutIcon;
     public bool IsTopBarFoldedOut { get { return GrpTopBarFoldOutHeight > 0; } }
     private int grpTopBarFoldOutHeightInit;
     public int GrpTopBarFoldOutHeight
@@ -251,11 +263,6 @@ public class ManagerGUI : MonoBehaviour
         managerPointSet.Is2D = togglePointSetDimension.value == 0 ? true : false;
     }
 
-    private void OnDisable()
-    {
-        StopAllCoroutines();
-    }
-
     IEnumerator ReadInitGUIValues()
     {
         // Don't know when exactly the GUI values are initialized, so this is a hack to just wait one frame until everything is initialized
@@ -285,6 +292,7 @@ public class ManagerGUI : MonoBehaviour
         }
 
         float timer = 0f;
+        isTopBarOccupied = true;
         while (timer < transitionDuration)
         {
             GrpTopBarFoldOutHeight = (int)(EvaluateCurveNormalized(animTopBarTransition, timer, transitionDuration) * grpTopBarFoldOutHeightInit);
@@ -297,6 +305,8 @@ public class ManagerGUI : MonoBehaviour
 
     private void OnTopBarTransitionFinished()
     {
+        isTopBarOccupied = false;
+
         // Swap image
         // 
         // Set up animation
@@ -315,7 +325,6 @@ public class ManagerGUI : MonoBehaviour
 
     private void CallbackTopBarTransition(bool completed)
     {
-        isTopBarOccupied = !completed;
         if (completed)
             OnTopBarTransitionFinished();
     }

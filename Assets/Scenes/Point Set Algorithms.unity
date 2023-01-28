@@ -184,19 +184,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2d6993ad55804647bd0153698f527ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  transitionDuration: 0.2
+  transitionDuration: 0.35
   animTopBarCollapse:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 1
-      inSlope: 0
-      outSlope: 0
+      inSlope: -3.1132078
+      outSlope: -3.1132078
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.1
     - serializedVersion: 3
       time: 1
       value: 0
@@ -215,12 +215,12 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 0
-      outSlope: 0
+      inSlope: 2.7169812
+      outSlope: 2.7169812
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.083333336
     - serializedVersion: 3
       time: 1
       value: 1

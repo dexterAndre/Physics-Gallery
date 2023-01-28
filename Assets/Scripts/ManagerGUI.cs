@@ -152,12 +152,9 @@ public class ManagerGUI : MonoBehaviour
     [SerializeField] private AnimationCurve animTopBarCollapse;
     [SerializeField] private AnimationCurve animTopBarExpand;
     [SerializeField] private AnimationCurve animTopBarTransition;
-    [SerializeField] private Image topBarFoldOutIconUp;
-    [SerializeField] private Image topBarFoldOutIconDown;
-    [SerializeField] private Image topBarFoldOutIcon;
-    public bool IsTopBarFoldedOut { get { return GrpTopBarFoldOutHeight > 0; } }
-    private int grpTopBarFoldOutHeightInit;
-    public int GrpTopBarFoldOutHeight
+    public bool IsTopBarFoldedOut { get { return GrpTopBarfoldoutHeight > 0; } }
+    private int grpTopBarfoldoutHeightInit;
+    public int GrpTopBarfoldoutHeight
     {
         get
         {
@@ -181,7 +178,8 @@ public class ManagerGUI : MonoBehaviour
     [SerializeField] private GroupBox grpNavBar;
     [SerializeField] private GroupBox grpSettings;
     [SerializeField] private GroupBox grpSeparator;
-    [SerializeField] private Button buttonFoldout;
+    [SerializeField] private Button buttonfoldout;
+    [SerializeField] private VisualElement topBarfoldoutIcon;
     [SerializeField] private ManagerPointSet managerPointSet;
     [SerializeField] private VisualElement rootElement;
     [SerializeField] private DropdownField dropdownFieldPointSetGenerate;
@@ -209,7 +207,8 @@ public class ManagerGUI : MonoBehaviour
         grpNavBar = rootElement.Q<GroupBox>("grp_NavBar");
         grpSettings = rootElement.Q<GroupBox>("grp_Settings");
         grpSeparator = rootElement.Q<GroupBox>("grp_Separator");
-        buttonFoldout = rootElement.Q<Button>("btn_Foldout");
+        buttonfoldout = rootElement.Q<Button>("btn_foldout");
+        topBarfoldoutIcon = rootElement.Q<VisualElement>("img_foldoutIcon");
         dropdownFieldPointSetGenerate = rootElement.Q<DropdownField>("drp_Generate");
         dropdownFieldPointSetOverlay = rootElement.Q<DropdownField>("drp_Overlay");
         dropdownFieldPointSetAnimate = rootElement.Q<DropdownField>("drp_Animate");
@@ -226,7 +225,8 @@ public class ManagerGUI : MonoBehaviour
             grpNavBar == null ||
             grpSettings == null ||
             grpSeparator == null ||
-            buttonFoldout == null ||
+            buttonfoldout == null ||
+            topBarfoldoutIcon == null ||
             managerPointSet == null ||
             rootElement == null ||
             dropdownFieldPointSetGenerate == null ||
@@ -247,7 +247,7 @@ public class ManagerGUI : MonoBehaviour
         dropdownFieldPointSetOverlay.choices = PointSetDropdownChoicesOverlay;
         dropdownFieldPointSetAnimate.choices = PointSetDropdownChoicesAnimate;
 
-        buttonFoldout.clicked += ButtonFoldout_clicked;
+        buttonfoldout.clicked += Buttonfoldout_clicked;
         buttonNavBarBack.clicked += ButtonNavBarBack_clicked;
         buttonNavBarMore.clicked += ButtonNavBarMore_clicked;
         buttonPointSetGenerate.clicked += ButtonPointSetGenerate_clicked;
@@ -271,7 +271,7 @@ public class ManagerGUI : MonoBehaviour
         isFirstFrame = false;
 
         // Reading initial values
-        grpTopBarFoldOutHeightInit = GrpTopBarFoldOutHeight;
+        grpTopBarfoldoutHeightInit = GrpTopBarfoldoutHeight;
         SelectTopBarTransitionAnimation();
     }
 
@@ -295,7 +295,7 @@ public class ManagerGUI : MonoBehaviour
         isTopBarOccupied = true;
         while (timer < transitionDuration)
         {
-            GrpTopBarFoldOutHeight = (int)(EvaluateCurveNormalized(animTopBarTransition, timer, transitionDuration) * grpTopBarFoldOutHeightInit);
+            GrpTopBarfoldoutHeight = (int)(EvaluateCurveNormalized(animTopBarTransition, timer, transitionDuration) * grpTopBarfoldoutHeightInit);
             yield return new WaitForEndOfFrame();
             timer += Time.deltaTime;
         }
@@ -307,10 +307,12 @@ public class ManagerGUI : MonoBehaviour
     {
         isTopBarOccupied = false;
 
-        // Swap image
         // 
         // Set up animation
         SelectTopBarTransitionAnimation();
+        
+        // Rotate foldout icon
+        topBarfoldoutIcon.style.rotate = new Rotate(new Angle(IsTopBarFoldedOut ? 180 : 0, AngleUnit.Degree));
     }
 
     private void SwapTopBarImage()
@@ -336,7 +338,7 @@ public class ManagerGUI : MonoBehaviour
 
 
     #region GUI Events
-    private void ButtonFoldout_clicked()
+    private void Buttonfoldout_clicked()
     {
         StartCoroutine(TransitionTopBar(animTopBarTransition));
     }

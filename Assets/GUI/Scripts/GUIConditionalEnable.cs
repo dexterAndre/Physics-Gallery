@@ -1,3 +1,4 @@
+using NUnit.Framework.Interfaces;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,17 +14,12 @@ public class GUIConditionalEnable : MonoBehaviour
     [SerializeField] private List<CanvasGroup> canvases;
     [SerializeField] private float inactiveAlpha = 0.5f;
     [SerializeField] private bool isInToggleGroup = false;
+    [SerializeField] bool staticToggle = true;
 
 
 
     private void Awake()
     {
-        if (toggle == null)
-        {
-            Debug.LogError("Error: GUIConditionalEnable requires a Toggle on the same GameObject in order to function.");
-            gameObject.SetActive(false);
-        }
-
         if (canvases.Count <= 0)
         {
             Debug.LogError("Error: GUIConditionalEnable requires CanvasGroup components inside the selectablesParents list to function.");
@@ -35,17 +31,17 @@ public class GUIConditionalEnable : MonoBehaviour
 
     private void OnEnable()
     {
-        toggle.onValueChanged.AddListener(SetEnabled);
+        toggle?.onValueChanged.AddListener(SetEnabled);
     }
 
     private void OnDisable()
     {
-        toggle.onValueChanged.RemoveListener(SetEnabled);
+        toggle?.onValueChanged.RemoveListener(SetEnabled);
     }
 
     public void OnToggled()
     {
-        SetEnabled(toggle.isOn);
+        SetEnabled(InterpretStatus());
     }
 
     private void SetEnabled(bool state)
@@ -60,8 +56,12 @@ public class GUIConditionalEnable : MonoBehaviour
         }
         else
         {
+
             foreach (CanvasGroup canvasGroup in canvases)
             {
+                canvasGroup.interactable = state;
+                canvasGroup.alpha = state ? 1f : inactiveAlpha;
+
                 GUIConditionalEnable foundComponent = canvasGroup.GetComponent<GUIConditionalEnable>();
                 if (foundComponent != null && foundComponent.Toggle != null)
                 {
@@ -75,5 +75,10 @@ public class GUIConditionalEnable : MonoBehaviour
                 }
             }
         }
+    }
+
+    private bool InterpretStatus()
+    {
+        return toggle != null ? toggle.isOn : staticToggle;
     }
 }

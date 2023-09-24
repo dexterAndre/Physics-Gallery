@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Point Set Algorithms 2.unity
+    path: Assets/Scenes/Point Set Algorithms.unity
     guid: 95adfb3902c532f42b61267021896f56
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

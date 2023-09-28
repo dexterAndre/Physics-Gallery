@@ -1,0 +1,179 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8778424993489809577
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6266243756803169298}
+  m_Layer: 0
+  m_Name: Billboard Crosshair
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6266243756803169298
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8778424993489809577}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 760324953432993605}
+  - {fileID: 8446684737507144797}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &803323963566569890
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6266243756803169298}
+    m_Modifications:
+    - target: {fileID: 1404722300467341185, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: end.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1404722300467341185, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: end.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1404722300467341185, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: start.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1971302226372583467, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_Name
+      value: Billboard Tick Line Vertical
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+--- !u!4 &8446684737507144797 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+  m_PrefabInstance: {fileID: 803323963566569890}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8399330278884975290
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6266243756803169298}
+    m_Modifications:
+    - target: {fileID: 1404722300467341185, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: start.x
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1404722300467341185, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: start.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1971302226372583467, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_Name
+      value: Billboard Tick Line Horizontal
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+--- !u!4 &760324953432993605 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9087522871217098239, guid: 11d4dd3a852e7eb4f87c49631e6a932c, type: 3}
+  m_PrefabInstance: {fileID: 8399330278884975290}
+  m_PrefabAsset: {fileID: 0}

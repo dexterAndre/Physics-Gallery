@@ -1,0 +1,10 @@
+Convex Hull algorithms: https://en.wikipedia.org/wiki/Convex_hull_algorithms
+- Orthogonal Convex Hull (2D)
+- Jarvis March (2D)
+- Graham Scan (2D)
+- Quickhull (2D)
+- Divide and Conquer (2D, 3D)
+- Monotone Chain (2D)
+- Incremental Convex Hull Algorithm (2D)
+- Kirkpatrick-Seidel (2D)
+- Chan (2D, 3D)

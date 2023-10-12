@@ -1,3 +1,6 @@
+GUI:
+- Set color on all side menu elements
+
 Convex Hull algorithms: https://en.wikipedia.org/wiki/Convex_hull_algorithms
 - Orthogonal Convex Hull (2D)
 - Jarvis March (2D)
@@ -8,3 +11,69 @@ Convex Hull algorithms: https://en.wikipedia.org/wiki/Convex_hull_algorithms
 - Incremental Convex Hull Algorithm (2D)
 - Kirkpatrick-Seidel (2D)
 - Chan (2D, 3D)
+
+
+/*
+################# Legend #################
+
+[ ]     Tickbox (non-exclusive)
+( )     Radio button (exclusive)
+ V      Dropdown (text indicates label)
+[V]     Dropdown item
+-o-     Slider (always comes with editable input field)
+
+def:    Default value indicator
+ *      Contextual GUI element
+[a, b]  Clamping (percentage unless otherwise specified)
+
+##########################################
+########## Contextual Settings: ##########
+##########################################
+
+################ Generate ################
+
+ V  "Generate using" def Random
+    [V] "Random"
+        [ ] "Inside Radius" def false
+            - Tooltip: "Generates random points inside a specified radius."
+            * -o- "Radius" [0, 50%] def: 50%
+                - Tooltip: "Radius to generate points inside."
+        [ ] "Disk Sampling" def false
+            - Tooltip: "Generates random points within a specified distance from each other."
+            * -o- "Disk Radius" [0, 50%] def: 2.5%
+                - Tooltip: "Radius of free space between generated points."
+            * -o- "Generation Attempts" [1, 20] def: 3
+                - Tooltip: "How many times to attempt to spawn if blocked by another disk."
+            * -o- "Termination Condition" [1, 20] def: 10
+                - Tooltip: "How many times allowed to fail before halting generation altogether."
+    [V] "Lattice"
+        -o- "Density" [0, 1 000 000] (counts elements) def: 100
+            - Tooltip: "How many points inside
+         V  "Bias" def: Linear
+            - Tooltip: "Probability bias for shifting points upon generation. All functions are normalized within [-1, 1]."
+            [V] "Linear"
+                - Tooltip: "No bias. 
+            [V] "Normal Distribution"
+            [V] "Parabola"
+         V  "Type"
+            [V] "Square"
+            [V] "Hexagonal"
+    [V] "Import"
+        [ ] "Normalize" def true
+            - Tooltip: "Normalizes the data set within [-1, 1] in all three dimensions."
+            * -o- "Scale" [0, 200%] def: 100%
+                - Tooltip: "Scale for imported data set after normalization."
+ V  "in"
+    [V] "2D"
+        - Tooltip: "Places generated points on a plane. Some algorithms behave differently in 2D."
+    [V] "3D"
+        - Tooltip: "Places generated points in 3D space. Some algorithms behave differently in 3D."
+
+################ Overlay #################
+
+################ Animate #################
+
+ V  "Animate using" def Jitter
+    [V] "Jitter"
+        [ ] "
+*/

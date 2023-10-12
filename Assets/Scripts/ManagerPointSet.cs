@@ -1,258 +1,444 @@
-using System;
+using Shapes;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.ParticleSystemJobs;
+using UnityEngine.UI;
 
-public class ManagerPointSet : MonoBehaviour
+/**
+    To do:
+    - Graphic for when point dies
+    - Add components via menu (dropdown?)
+    - Remove components via button
+    - Reorder components via button
+    - 3D
+    - Camera control 3D (permanent rotate, rotate and snapback)
+*/
+
+
+
+[System.Serializable]
+public enum PrefabType
 {
-    [SerializeField] private List<Transform> points = new List<Transform>();
+    Plus,
+    Cross,
+    Disc,
+    Circle,
+    Triangle,
+    Boid,
+    SquareFilled,
+    SquareHollow
+}
+[System.Serializable]
+public struct PosRot2
+{
+    public PosRot2(Vector2 inPosition)
+    {
+        position = inPosition;
+        rotation = Vector2.up;
+    }
+    public PosRot2(Vector2 inPosition, Vector2 inRotation)
+    {
+        position = inPosition;
+        rotation = inRotation;
+    }
+
+    public Vector2 position;
+    public Vector2 rotation;
+}
+[System.Serializable]
+public struct PosRot3
+{
+    public PosRot3(Vector3 inPosition)
+    {
+        position = inPosition;
+        rotation = Vector3.forward;
+    }
+    public PosRot3(Vector3 inPosition, Vector3 inRotation)
+    {
+        position = inPosition;
+        rotation = inRotation;
+    }
+
+    public Vector3 position;
+    public Vector3 rotation;
+}
+[System.Serializable]
+public struct PointAnimProxy2
+{
+    public PointAnimProxy2(Vector2 inPosition = default(Vector2), float inAnimationDuration = 1f)
+    {
+        position = inPosition;
+        animationDuration = inAnimationDuration;
+        animationTimer = 0f;
+    }
+
+    // Returns whether the animation has finished or is ongoing
+    public bool UpdateBehavior(float deltaTime)
+    {
+        animationTimer += deltaTime;
+        return IsAnimationFinished();
+    }
+
+    public float GetAnimationProgress()
+    {
+        return animationTimer / animationDuration;
+    }
+
+    public bool IsAnimationFinished()
+    {
+        return animationTimer >= animationDuration;
+    }
+
+    public Vector2 position;
+    public float animationDuration;
+    public float animationTimer;
+}
+
+
+
+public class ManagerPointSet : ImmediateModeShapeDrawer
+{
+    [SerializeField] private List<Vector2> positions2 = new List<Vector2>();
+    public void SetPoint(int index, Vector2 point)
+    {
+        positions2[index] = point;
+    }
+    public void MovePoint(int index, Vector2 displacement)
+    {
+        Vector2 newPos = positions2[index] + displacement * Time.deltaTime;
+        positions2[index] = newPos;
+    }
+    public void MovePoint_WrappedRectangular(int index, Vector2 displacement)
+    {
+        Vector2 newPos = positions2[index] + displacement * Time.deltaTime;
+        Vector2 wrapAnimationPosition = newPos;
+
+        // Wrapping
+        Vector2 boundsHalf = guiCoordinateSystem.BoundsHalf;
+        Vector2 interval = (Vector3)guiCoordinateSystem.Bounds;
+        bool shouldWrap = false;
+        if (newPos.x < -boundsHalf.x)
+        {
+            newPos.x += interval.x;
+            shouldWrap = true;
+            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[2].point, Vector2.up);
+        }
+        else if (newPos.x > boundsHalf.x)
+        {
+            newPos.x -= interval.x;
+            shouldWrap = true;
+            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[3].point, Vector2.up);
+        }
+        if (newPos.y < -boundsHalf.y)
+        {
+            newPos.y += interval.y;
+            shouldWrap = true;
+            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[2].point, Vector2.right);
+        }
+        else if (newPos.y > boundsHalf.y)
+        {
+            newPos.y -= interval.y;
+            shouldWrap = true;
+            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[1].point, Vector2.right);
+        }
+
+        if (shouldWrap)
+        {
+            wrapProxies.Add(new PointAnimProxy2(wrapAnimationPosition, wrapAnimationDuration));
+        }
+
+        positions2[index] = newPos;
+    }
+    public int PointCount()
+    {
+        return positions2.Count;
+    }
+    [SerializeField] private List<PosRot2> posrots2 = new List<PosRot2>();
+    [SerializeField] private List<Vector3> positions3 = new List<Vector3>();
+    [SerializeField] private List<PosRot3> posrots3 = new List<PosRot3>();
+    [SerializeField] private List<PointAnimProxy2> wrapProxies = new List<PointAnimProxy2>();
 
     [Header("Spawning")]
-    [SerializeField] private GameObject pointStatic;
-    [SerializeField] private GameObject pointMoving;
-    [SerializeField] private GameObject pointSimulated;
     [SerializeField] private Transform pointsParent;
-    [SerializeField, Range(0f, 2f)] private float pointMeshScale = 1f;
-    [SerializeField, Range(0, 1000000)] private int density = 256;
-    public int Density { get { return density; } set { density = value; } }
-    private bool pendingDelete = false;
-    [SerializeField] private Vector3 spawnPointSafeZone = new Vector3(0.5f, 0.5f, 0.5f);
-    private Vector3 spawnPointBoundingBoxOctant = new Vector3(10f, 10f, 10f);
+    [SerializeField] private PrefabType pointType = PrefabType.SquareFilled;
+    [SerializeField] private GUIIncrementSliderInput guiPointCount;
+    [SerializeField] private TMP_Dropdown guiGenerationMethod;
+    [SerializeField] private CoordinateOverlayCartesian guiCoordinateSystem;
 
-    // Settings
-    [Header("Jitter")]
-    [SerializeField] private bool animateJitter = false;
-    public bool AnimateJitter
-    {
-        get { return animateJitter; }
-        set
-        {
-            animateJitter = value;
-        }
-    }
-    [SerializeField, Range(0f, 10f)] private float animateJitterSpeedMax = 1f;
-    [SerializeField, Range(0f, 1f)] private float animateJitterSmoothing = 0f;
+    [Header("Points")]
+    [SerializeField, Range(0f, 1f)] private float pointSize = 0.001f;
+    [SerializeField] private LineGeometry lineGeometry = LineGeometry.Billboard;
+    [SerializeField] private ThicknessSpace thicknessSpace = ThicknessSpace.Pixels;
+    [SerializeField] private float thickness = 3;
+    private Matrix4x4 drawMatrix;
+    // Normalizing shape coordinates, should only be done to initialize
+    [SerializeField] Transform pointPrefabsParent;
+    private List<Vector2> shapeCoordinates_plus;
+    private List<Vector2> shapeCoordinates_cross;
+    private float shapeCoordinates_circle;
+    private List<Vector2> shapeCoordinates_triangle;
+    private List<Vector2> shapeCoordinates_boid;
+    private List<Vector2> shapeCoordinates_square;
 
-    //[Header("Life and Death")]
-    //[Header("Spring Simulation")]
-    //[Header("Flocking")]
-    //[Header("Vector Field")]
-    //[Header("Wind Simulation")]
-    //[Header("Strange Attractor")]
-    //[Header("Lotka-Volterra Equations")]
+    [Header("Wrapping")]
+    [SerializeField] private float wrapAnimationDuration = 1f;
+    [SerializeField] private float wrapAnimationRadiusMultiplier = 1f;
+    [SerializeField] private float wrapAnimationThickness = 3f;
 
-    [SerializeField] private bool is2D = true;
-    public bool Is2D
-    {
-        get { return is2D; }
-        set
-        {
-            if (is2D == value)
-                return;
-
-            is2D = value;
-            ChangeDimension(is2D);
-        }
-    }
+    [Header("Overlays")]
+    [SerializeField] private float overlayThickness = 0.25f;
 
     // Callbacks
-    public delegate void GenerateFunction();
-    public delegate void OverlayFunction();
-    public delegate void AnimateFunction();
-    public delegate void SelectFunction();
+    public delegate void VoidDelegate_ZeroParameters();
+    public delegate void VoidDelegate_IntVector2(int arg1, Vector2 arg2);
 
     // Generation delegates
-    public static event GenerateFunction Generate_MasterFunction;
+    public static event VoidDelegate_ZeroParameters Generate_MasterFunction;
 
-    // Overlay delegates
-    public static event OverlayFunction Overlay_MasterFunction;
+    // Misc. delegates
+    public static event VoidDelegate_IntVector2 WrapPoint_MasterFunction;
 
-    // Animation delegates
-    public static event AnimateFunction Animate_MasterFunction;
-    public static event AnimateFunction Animate_Jitter;
+    // Animation components
+    [SerializeField] private List<PointBehaviorAnimation2> animationBehaviors = new List<PointBehaviorAnimation2>();
 
-    // Selection delegates
-    public static event SelectFunction Select_MasterFunction;
+    // Overlay components
+    [SerializeField] private List<PointBehaviorOverlay2> overlayBehaviors = new List<PointBehaviorOverlay2>();
 
 
 
     private void Awake()
     {
-        if (pointsParent == null)
-            pointsParent = GameObject.Find("Points Parent").transform;
-
-        if (pointStatic == null ||
-            pointMoving == null ||
-            pointSimulated == null ||
-            pointsParent == null)
+        drawMatrix = transform.localToWorldMatrix;
+        UpdateDrawParameters();
+        EvaluateShapeCoordinates();
+        animationBehaviors.Clear();
+        foreach (Transform child in transform)
         {
-            gameObject.SetActive(false);
+            PointBehaviorAnimation2 behavior = child.GetComponent<PointBehaviorAnimation2>();
+            if (behavior != null)
+            {
+                animationBehaviors.Add(behavior);
+            }
         }
-
-        points.Clear();
-
-        Camera cam = Camera.main;
-        if (cam.orthographic)
+        foreach (Transform child in transform)
         {
-            spawnPointBoundingBoxOctant = new Vector3(
-                (cam.orthographicSize - spawnPointSafeZone.x),
-                (cam.orthographicSize - spawnPointSafeZone.y),
-                (cam.orthographicSize - spawnPointSafeZone.z));
-        }
-
-        Generate_MasterFunction = GeneratePoints_RandomDisordered;
-    }
-
-    private void FixedUpdate()
-    {
-        // If animating or otherwise moving, also re-run all related overlay functions, and update their corresponding visualizations
-
-        if (Animate_MasterFunction != null && !pendingDelete)
-        {
-            Animate_MasterFunction();
+            PointBehaviorOverlay2 behavior = child.GetComponent<PointBehaviorOverlay2>();
+            if (behavior != null)
+            {
+                overlayBehaviors.Add(behavior);
+            }
         }
     }
 
-    private void ChangeDimension(bool is2D)
+    public override void OnEnable()
     {
-        if (is2D)
+        base.OnEnable();
+
+        Generate_MasterFunction = Generate_Random;
+        WrapPoint_MasterFunction = MovePoint_WrappedRectangular;
+
+        drawMatrix = transform.localToWorldMatrix;
+        UpdateDrawParameters();
+        EvaluateShapeCoordinates();
+    }
+
+    public override void OnDisable()
+    {
+        base.OnDisable();
+
+        Generate_MasterFunction = null;
+        WrapPoint_MasterFunction = null;
+    }
+
+    private void OnValidate()
+    {
+        UpdateDrawParameters();
+    }
+
+    // Behaviors
+    private void Update()
+    {
+        // Updating point behaviors
+        for (int i = 0; i < positions2.Count; i++)
         {
-            Animate_Jitter = Animate_Jitter_2D;
-        }
-        else
-        {
-            Animate_Jitter = Animate_Jitter_3D;
-        }
-    }
+            Vector2 movement = Vector2.zero;
+            foreach (PointBehaviorAnimation2 animationBehavior in animationBehaviors)
+            {
+                movement += animationBehavior.UpdateBehavior();
+            }
 
-    private void OnEnable()
-    {
-        // Subscribe all relevant delegates
-    }
-
-    private void OnDisable()
-    {
-        // Ubsubscribe all relevant delegates
-    }
-
-    public void Animate_Jitter_2D()
-    {
-        foreach (Transform point in points)
-        {
-            Vector3 randomVelocity = new Vector3(
-                UnityEngine.Random.Range(-1.0f, 1.0f),
-                0f,
-                UnityEngine.Random.Range(-1.0f, 1.0f)) * animateJitterSpeedMax * Time.fixedDeltaTime;
-            point.position = Vector3.Lerp(point.position, point.position + randomVelocity, 1f - animateJitterSmoothing);
-        }
-    }
-
-    public void Animate_Jitter_3D()
-    {
-        foreach (Transform point in points)
-        {
-            Vector3 randomVelocity = new Vector3(
-                UnityEngine.Random.Range(-1.0f, 1.0f),
-                UnityEngine.Random.Range(-1.0f, 1.0f),
-                UnityEngine.Random.Range(-1.0f, 1.0f)) * animateJitterSpeedMax * Time.fixedDeltaTime;
-            point.position = Vector3.Lerp(point.position, point.position + randomVelocity, 1f - animateJitterSmoothing);
-        }
-    }
-
-    public IEnumerator GeneratePoints()
-    {
-        yield return StartCoroutine(DeletePoints());
-        if (Generate_MasterFunction != null)
-            Generate_MasterFunction();
-    }
-
-    public IEnumerator DeletePoints()
-    {
-        pendingDelete = true;
-
-        // Ensuring no functions are trying to access soon-to-be-deleted game objects
-        // This assumes everything directly referencing them are in FixedUpdate()
-        yield return new WaitForFixedUpdate();
-
-        foreach (Transform child in pointsParent)
-        {
-            Destroy(child.gameObject);
-        }
-        points.Clear();
-
-        pendingDelete = false;
-    }
-
-    public Vector3 GenerateRandomVector3_BoundingBox(Vector3 boundingBoxOctant, Func<Vector3, Vector3> biasFunction = null)
-    {
-        float randomX = UnityEngine.Random.Range(-boundingBoxOctant.x, boundingBoxOctant.x);
-        float randomY = UnityEngine.Random.Range(-boundingBoxOctant.y, boundingBoxOctant.y);
-        float randomZ = UnityEngine.Random.Range(-boundingBoxOctant.z, boundingBoxOctant.z);
-        Vector3 randomVector = new Vector3(randomX, randomY, randomZ);
-
-        if (biasFunction != null)
-        {
-            randomVector = biasFunction(randomVector);
+            WrapPoint_MasterFunction?.Invoke(i, movement);
         }
 
-        return randomVector;
-    }
+        // Updating overlay behaviors
+        //  ...
 
-    public Vector3 SquareResult(Vector3 input)
-    {
-        // TODO: Move into MathUtils
-
-        float x = input.x;
-        float y = input.y;
-        float z = input.z;
-
-        int signX = x < 0 ? -1 : 1;
-        int signY = y < 0 ? -1 : 1;
-        int signZ = z < 0 ? -1 : 1;
-
-        float magnitudeMax = spawnPointBoundingBoxOctant.magnitude;
-        x = MathUtils.Remap(0f, magnitudeMax, 0f, 1f, x);
-        y = MathUtils.Remap(0f, magnitudeMax, 0f, 1f, y);
-        z = MathUtils.Remap(0f, magnitudeMax, 0f, 1f, z);
-
-        x *= x * signX;
-        y *= y * signY;
-        z *= z * signZ;
-
-        x = MathUtils.Remap(0f, 1f, 0f, magnitudeMax, x);
-        y = MathUtils.Remap(0f, 1f, 0f, magnitudeMax, y);
-        z = MathUtils.Remap(0f, 1f, 0f, magnitudeMax, z);
-
-        return new Vector3(x, y, z);
-    }
-
-    private void GeneratePoint(GameObject prefab, Vector3 position, Vector3 forwardOrientation = new Vector3(), float scale = 1f)
-    {
-        if (forwardOrientation == Vector3.zero) forwardOrientation = Vector3.forward;
-        GameObject go = Instantiate(prefab, position, Quaternion.LookRotation(forwardOrientation), pointsParent);
-        go.transform.localScale = new Vector3(scale, scale, scale);
-        points.Add(go.transform);
-    }
-
-    public void GeneratePoints_RandomDisordered()
-    {
-        for (int i = 0; i < Density; i++)
+        // Updating death proxies
+        for (int i = wrapProxies.Count - 1; i >= 0; i--)
         {
-            Vector3 point = GenerateRandomVector3_BoundingBox(spawnPointBoundingBoxOctant, SquareResult);
-            // Optionally pass through a bias curve
+            PointAnimProxy2 proxy = wrapProxies[i];
+            proxy.animationTimer += Time.deltaTime;
 
-            GeneratePoint(pointStatic, point, Vector3.forward, pointMeshScale);
+            if (proxy.animationTimer > proxy.animationDuration)
+            {
+                wrapProxies.RemoveAt(i);
+            }
+            else
+            {
+                wrapProxies[i] = proxy;
+            }
         }
     }
 
-    public void GeneratePoints_RandomBlueNoise(uint Density, float DiskRadius, uint GenerationIterationLimit, uint TerminationLimit)
+    // Rendering
+    public override void DrawShapes(Camera cam)
     {
-        // TODO: Cache parameters instead in order to conform to delegate signatures
-
-        for (int i = 0, termination = 0; i < Density; i++)
+        using (Draw.Command(cam))
         {
-            //float
+            // Drawing points
+            foreach (Vector2 pos in positions2)
+            {
+                Draw.Rectangle(pos, Vector2.one * pointSize);
+            }
+
+            // Drawing overlays
+            //      n^2 web
+            Draw.Thickness = overlayThickness;
+            for (int i = 0; i < positions2.Count - 1; i++)
+            {
+                for (int j = i; j < positions2.Count; j++)
+                {
+                    Draw.Line(positions2[i], positions2[j]);
+                }
+            }
+
+            // Drawing wrap event indicator animations
+            Draw.Thickness = wrapAnimationThickness;
+            foreach (PointAnimProxy2 wrapProxy in wrapProxies)
+            {
+                Draw.Ring(wrapProxy.position, pointSize * wrapAnimationRadiusMultiplier * wrapProxy.GetAnimationProgress());
+            }
         }
     }
+
+#region Behavior functionality
+#region Generation
+    public void Generate()
+    {
+        OnPreGeneratePoint();
+        Generate_MasterFunction();
+    }
+    private void OnPreGeneratePoint()
+    {
+        positions2.Clear();
+    }
+    private Vector2 GenerateRandomPoint_Rectangle(Vector2 size)
+    {
+        return new Vector2(
+            Random.Range(-size.x, size.x),
+            Random.Range(-size.y, size.y));
+    }
+    private Vector2 GenerateRandomPoint_Circle(float radius)
+    {
+        return Vector2.zero;
+    }
+    private Vector2 GenerateRandomPoint_Sector(float angle, float radius)
+    {
+        return Vector2.zero;
+    }
+    private void Generate_Random()
+    {
+        if (guiPointCount == null)
+        {
+            Debug.LogError("GUIIncrementSliderInput is null! Could not read point count.");
+            return;
+        }
+
+        if (guiCoordinateSystem == null)
+        {
+            Debug.LogError("CoordinateOverlayCartesian is null! Could not read bounds.");
+            return;
+        }
+
+        Vector2 bounds = (Vector2Int)guiCoordinateSystem.Bounds;
+        bounds /= 2f;
+        
+        // TODO: Switch on bounds shape
+        for (int i = 0; i < guiPointCount.SliderValue; i++)
+        {
+            positions2.Add(GenerateRandomPoint_Rectangle(bounds));
+        }
+    }
+#endregion  // Generation
+#region Overlay
+#endregion  // Overlay
+#region Select
+#endregion  // Select
+#region Animation
+#endregion  // Animation
+#endregion  // Behavior functionality
+
+#region Internal functionality
+    private void UpdateDrawParameters()
+    {
+        Draw.LineGeometry = lineGeometry;
+        Draw.ThicknessSpace = thicknessSpace;
+        Draw.Thickness = thickness;
+        Draw.Matrix = drawMatrix;
+    }
+
+    private void EvaluateShapeCoordinates()
+    {
+        Line plusLineHorizontal = pointPrefabsParent.Find("Plus").Find("Horizontal Stroke").GetComponent<Line>();
+        Line plusLineVertical = pointPrefabsParent.Find("Plus").Find("Vertical Stroke").GetComponent<Line>();
+        shapeCoordinates_plus = new List<Vector2>
+        {
+            plusLineHorizontal.Start.normalized,
+            plusLineHorizontal.End.normalized,
+            plusLineVertical.Start.normalized,
+            plusLineVertical.End.normalized
+        };
+
+        Line crossLineNE = pointPrefabsParent.Find("Cross").Find("NE Stroke").GetComponent<Line>();
+        Line crossLineSE = pointPrefabsParent.Find("Cross").Find("SE Stroke").GetComponent<Line>();
+        shapeCoordinates_cross = new List<Vector2>
+        {
+            crossLineNE.Start.normalized,
+            crossLineNE.End.normalized,
+            crossLineSE.Start.normalized,
+            crossLineSE.End.normalized
+        };
+
+        shapeCoordinates_circle = 1f;
+
+        Triangle triangle = pointPrefabsParent.Find("Triangle").GetComponent<Triangle>();
+        shapeCoordinates_triangle = new List<Vector2>
+        {
+            triangle.A.normalized,
+            triangle.B.normalized,
+            triangle.C.normalized
+        };
+
+        Quad boid = pointPrefabsParent.Find("Boid").GetComponent<Quad>();
+        shapeCoordinates_boid = new List<Vector2>
+        {
+            boid.A.normalized,
+            boid.B.normalized,
+            boid.C.normalized,
+            boid.D.normalized
+        };
+
+        Polyline square = pointPrefabsParent.Find("Square Hollow").GetComponent<Polyline>();
+        shapeCoordinates_square = new List<Vector2>
+        {
+            square.points[0].point.normalized,
+            square.points[1].point.normalized,
+            square.points[2].point.normalized,
+            square.points[3].point.normalized
+        };
+    }
+#endregion  // Internal functionality
 }

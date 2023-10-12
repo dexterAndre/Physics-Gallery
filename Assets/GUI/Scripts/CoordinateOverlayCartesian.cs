@@ -64,6 +64,10 @@ public class CoordinateOverlayCartesian : MonoBehaviour
             cameraController.BoundarySpan = bounds;
         }
     }
+    public Vector3 BoundsHalf
+    {
+        get { return (Vector3)bounds / 2f; }
+    }
 
     [Header("Tick Markers")]
     [SerializeField] private bool showTickMarkers = true;
@@ -103,17 +107,32 @@ public class CoordinateOverlayCartesian : MonoBehaviour
     [SerializeField, Tooltip("Screen-space percentage of how much title menu is offset from the top of the grid. Acts as a multiplier if titleMenuPaddingRelative is true.")]
     float titleMenuPaddingOffset = 0.1f;
     [SerializeField] bool titleMenuPaddingRelative = false;
-    [SerializeField]
-    private float fontSizeMultiplier = 0.1f;
+    [SerializeField] private float fontSizeMultiplier = 0.1f;
+    [SerializeField] private Vector2 sideMenuOffsetPixels = new Vector2(100f, -100f);
+    public Vector2 SideMenuOffsetPixels
+    {
+        get { return sideMenuOffsetPixels; }
+        set
+        {
+            sideMenuOffsetPixels = value;
+            if (sideMenuOffsetPixels.x < 0)
+                sideMenuOffsetPixels.x = 0;
+            if (sideMenuOffsetPixels.y < 0)
+                sideMenuOffsetPixels.y = 0;
+        }
+    }
+    private Vector3 titleMenuPositionCached = Vector3.zero;
 
     [Header("References")]
     [SerializeField] private VisualizerCameraController cameraController;
     [SerializeField, Tooltip("Boundary visualizer. Also used to reference graphics settings from, for example in subobjects like ticks or points of interest.")]
     private Polyline gridCorners;
+    public Polyline GridCorners { get { return gridCorners; } }
     [SerializeField] private GameObject lineObject;
     [SerializeField] private GameObject doubleLineObject;
     [SerializeField] private GameObject circleObject;
     [SerializeField] private GameObject titleMenu;
+    [SerializeField] private GameObject sideMenu;
 
 
 
@@ -155,10 +174,13 @@ public class CoordinateOverlayCartesian : MonoBehaviour
 
     private void OnValidate()
     {
-        UnityEditor.EditorApplication.delayCall += () =>
+        if (Bounds.x > 0 || Bounds.y > 0 || Bounds.z > 0)
         {
-            RecalculateCoordinateSystem();
-        };
+            UnityEditor.EditorApplication.delayCall += () =>
+            {
+                RecalculateCoordinateSystem();
+            };
+        }
     }
 
     private void OnDestroy()
@@ -170,8 +192,10 @@ public class CoordinateOverlayCartesian : MonoBehaviour
     {
         cameraController.BoundarySpan = Bounds;
         SetGridCorners();
-        StartCoroutine(StartRecreatingMarkers());
         SetTitleMenuPosition();
+        SetSideMenuPosition();
+        // TODO: On play, this throws a null error. No big deal, but annoying. Get rid of it.
+        StartCoroutine(StartRecreatingMarkers());
     }
 
     private void SetGridCorners()
@@ -191,14 +215,31 @@ public class CoordinateOverlayCartesian : MonoBehaviour
 
     private void SetTitleMenuPosition()
     {
-        // Old code: consider deleting
-        //float paddingOffset = titleMenuPaddingRelative ? titleMenuPaddingOffset * cameraController.Padding : titleMenuPaddingOffset;
-        //float yPosition = Camera.main.orthographicSize * (1f - cameraController.Padding + paddingOffset);
-        //titleMenu.transform.position = new Vector3(0f, yPosition, 0f);
+        float screenSizeLimit = Camera.main.pixelHeight > cameraController.MaxScreenSizeForContentScaling ? cameraController.MaxScreenSizeForContentScaling : Camera.main.pixelHeight;
+        float yOffset = titleMenuPaddingRelative ? (titleMenuPaddingOffset * screenSizeLimit / 2f) : titleMenuPaddingOffset;
+        float yPosition = Camera.main.WorldToScreenPoint(gridCorners[0].point).y  - Camera.main.pixelHeight / 2f + yOffset;
 
-        float yPosition = gridCorners[0].point.y * (1 + cameraController.Padding);
-        titleMenu.transform.position = new Vector3(0f, yPosition, 0f);
-        titleMenu.transform.GetChild(1).GetComponent<TMP_Text>().fontSize = fontSizeMultiplier * Camera.main.orthographicSize;
+        titleMenuPositionCached = new Vector3(0f, yPosition, 0f);
+
+        titleMenu.GetComponent<RectTransform>().localPosition = titleMenuPositionCached;
+    }
+
+    private void SetSideMenuPosition()
+    {
+        Vector3 newSidePosition = new Vector3(SideMenuOffsetPixels.x, SideMenuOffsetPixels.y, 0f);
+        // Assuming the title is perfectly centered on the x-axis,
+        // checks if overflowing the screen on the right side
+        Rect menuRect = sideMenu.GetComponent<RectTransform>().rect;
+        if (SideMenuOffsetPixels.x + menuRect.width > Camera.main.pixelWidth / 2f)
+        {
+            newSidePosition.x = Camera.main.pixelWidth / 2f - menuRect.width;
+        }
+        // Checks if overflowing the screen at the bottom (y is a free variable)
+        if (titleMenuPositionCached.y + SideMenuOffsetPixels.y - menuRect.height < -Camera.main.pixelHeight / 2f)
+        {
+            newSidePosition.y = -titleMenuPositionCached.y - Camera.main.pixelHeight / 2f + menuRect.height;
+        }
+        sideMenu.GetComponent<RectTransform>().localPosition = newSidePosition;
     }
 
     public IEnumerator StartRecreatingMarkers()
@@ -257,7 +298,8 @@ public class CoordinateOverlayCartesian : MonoBehaviour
             Vector3Pair cornerPoints = SelectGridCorners(side);
             Vector3 position = cornerPoints.A + linearProgress * (cornerPoints.B - cornerPoints.A);
             int skewTickPatternOffset = halfSkewTickPattern ? ((tickCount - 1) / 2) : 0;
-            float magnitude = CalculateTickLength(tickMarkerLength.x, tickMarkerLength.y, i, subdivisions, skewTickPatternOffset);
+            int sideSize = (side == Direction.East || side == Direction.West) ? Bounds.x : Bounds.y;
+            float magnitude = CalculateTickLength(tickMarkerLength.x, tickMarkerLength.y, i, subdivisions, sideSize, skewTickPatternOffset);
             bool isLateral = side == Direction.East || side == Direction.West;
             if (relativeMarkerLength)
             {

@@ -29,6 +29,13 @@ public class VisualizerCameraController : MonoBehaviour
     }
     [SerializeField, Tooltip("Maximum content size before scaling camera size based on it.")]
     private int maxScreenSizeForContentScaling = 1080;
+    public int MaxScreenSizeForContentScaling { get { return maxScreenSizeForContentScaling; } }
+
+    // Camera resizing cache
+    private int currentCameraWidth;
+    private int currentCameraHeight;
+    private int previousCameraWidth;
+    private int previousCameraHeight;
 
     // Events
     public delegate void CameraEventSignature();
@@ -43,14 +50,42 @@ public class VisualizerCameraController : MonoBehaviour
             cam = Camera.main;
         }
 
-        RecalculateCameraSize();
+        InitializeCameraSizes();
+        onResizeEvent?.Invoke();
+    }
+
+    private void OnEnable()
+    {
+        onResizeEvent += RecalculateCameraSize;
+
+        InitializeCameraSizes();
+    }
+
+    private void OnDisable()
+    {
+        onResizeEvent -= RecalculateCameraSize;
     }
 
     private void OnValidate()
     {
         BoundarySpan = boundarySpan;    // Shortcut to force editor assignment to run its setter function
-        RecalculateCameraSize();
+        InitializeCameraSizes();
         onResizeEvent?.Invoke();
+    }
+
+    private void OnGUI()
+    {
+        if (cam == null)
+            return;
+
+        currentCameraWidth = cam.pixelWidth;
+        currentCameraHeight = cam.pixelHeight;
+        if (WasCameraResized())
+        {
+            previousCameraWidth = currentCameraWidth;
+            previousCameraHeight = currentCameraHeight;
+            onResizeEvent?.Invoke();
+        }
     }
 
     public void RecalculateCameraSize()
@@ -77,5 +112,18 @@ public class VisualizerCameraController : MonoBehaviour
         }
 
         cam.orthographicSize = cameraSize;
+    }
+
+    private bool WasCameraResized()
+    {
+        return (currentCameraWidth != previousCameraWidth || currentCameraHeight != previousCameraHeight);
+    }
+
+    private void InitializeCameraSizes()
+    {
+        currentCameraWidth = cam.pixelWidth;
+        currentCameraHeight = cam.pixelHeight;
+        previousCameraWidth = currentCameraWidth;
+        previousCameraHeight = currentCameraHeight;
     }
 }

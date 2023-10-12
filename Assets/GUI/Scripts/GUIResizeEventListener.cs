@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using static ManagerPointSet;
 
 [RequireComponent(typeof(RectTransform))]
 public class GUIResizeEventListener : UIBehaviour

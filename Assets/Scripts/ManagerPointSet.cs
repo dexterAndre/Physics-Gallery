@@ -13,16 +13,12 @@ using UnityEngine.UIElements;
 
 /**
     To do:
-    - Graphic for when point dies
-    - Add components via menu (dropdown?)
-    - Remove components via button
-    - Reorder components via button
-    - 3D
-    - Camera control 3D (permanent rotate, rotate and snapback)
+    - 
 */
 
 
 
+#region Structs and enums
 [System.Serializable]
 public enum PrefabType
 {
@@ -32,8 +28,6 @@ public enum PrefabType
     Circle,
     Triangle,
     Boid,
-    SquareFilled,
-    SquareHollow
 }
 [System.Serializable]
 public struct PosRot2
@@ -176,81 +170,11 @@ public enum AnimationMethod
     LotkaVolterraEquations,
     SpringSystem,
 }
-
-
+#endregion // Structs and enums
 
 public class ManagerPointSet : ImmediateModeShapeDrawer
 {
     [SerializeField] private List<Vector2> positions2 = new List<Vector2>();
-    public void SetPoint(int index, Vector2 point)
-    {
-        positions2[index] = point;
-    }
-    public void MovePoint(int index, Vector3 displacement)
-    {
-        Vector3 newPos = positions3[index] + displacement * Time.deltaTime;
-        positions3[index] = newPos;
-    }
-    public void MovePoint_WrappedRectangular(int index, Vector3 displacement)
-    {
-        Vector3 newPos = positions3[index] + displacement * Time.deltaTime;
-        Vector3 wrapAnimationPosition = newPos;
-
-        // Wrapping
-        Vector3 boundsHalf = guiCoordinateSystem.BoundsHalf;
-        Vector3 interval = (Vector3)guiCoordinateSystem.Bounds;
-        bool shouldWrap = false;
-        // TODO: Should consider corner cases, where it may have exeeded the bounds on several axes in one update
-        // For now, just project
-        if (newPos.x < -boundsHalf.x)
-        {
-            newPos.x += interval.x;
-            shouldWrap = true;
-            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[2].point, Vector3.up);
-        }
-        else if (newPos.x > boundsHalf.x)
-        {
-            newPos.x -= interval.x;
-            shouldWrap = true;
-            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[3].point, Vector3.up);
-        }
-        if (newPos.y < -boundsHalf.y)
-        {
-            newPos.y += interval.y;
-            shouldWrap = true;
-            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[2].point, Vector2.right);
-        }
-        else if (newPos.y > boundsHalf.y)
-        {
-            newPos.y -= interval.y;
-            shouldWrap = true;
-            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[1].point, Vector2.right);
-        }
-        // TODO: Complete z-axis wrapping
-        if (newPos.z < -boundsHalf.z)
-        {
-            newPos.z += interval.z;
-            shouldWrap = true;
-            //wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[2].point, Vector2.right);
-        }
-        else if (newPos.z > boundsHalf.z)
-        {
-            newPos.z -= interval.z;
-            shouldWrap = true;
-            //wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[1].point, Vector2.right);
-        }
-
-        if (shouldWrap)
-        {
-            wrapProxies.Add(new PointAnimProxy3(wrapAnimationPosition, wrapAnimationDuration));
-        }
-
-        positions3[index] = newPos;
-    }
-    public int PointCount()
-    {
-        return positions2.Count;
-    }
     [SerializeField] private List<PosRot2> posrots2 = new List<PosRot2>();
     [SerializeField] private List<Vector3> positions3 = new List<Vector3>();
     [SerializeField] private List<PosRot3> posrots3 = new List<PosRot3>();
@@ -258,63 +182,34 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
 
     [Header("Spawning")]
     [SerializeField] private Transform pointsParent;
-    [SerializeField] private PrefabType pointType = PrefabType.SquareFilled;
+    [SerializeField] private PrefabType pointType = PrefabType.Circle;
+    private PrefabType previousPointType = PrefabType.Circle;
     [SerializeField] private GUIIncrementSliderInput guiPointCount;
     [SerializeField] private TMP_Dropdown guiGenerationMethod;
-    [SerializeField] private CoordinateOverlayCartesian guiCoordinateSystem;
+    [SerializeField] private CoordinateSystem guiCoordinateSystem;
 
     [Header("Points")]
-    [SerializeField, Range(0f, 1f)] private float pointSize = 0.001f;
+    [SerializeField, Range(0f, 0.05f)] private float pointSize = 0.001f;
     [SerializeField] private LineGeometry lineGeometry = LineGeometry.Billboard;
+    [SerializeField] private DiscGeometry discGeometry = DiscGeometry.Billboard;
     [SerializeField] private ThicknessSpace thicknessSpace = ThicknessSpace.Pixels;
     [SerializeField] private float thickness = 3;
     private Matrix4x4 drawMatrix;
-    // Normalizing shape coordinates, should only be done to initialize
+    // These shape coordinates are initialized, normalized, and used to read from in subsequent draw calls
     [SerializeField] Transform pointPrefabsParent;
-    private List<Vector2> shapeCoordinates_plus;
-    private List<Vector2> shapeCoordinates_cross;
-    private float shapeCoordinates_circle;
-    private List<Vector2> shapeCoordinates_triangle;
-    private List<Vector2> shapeCoordinates_boid;
-    private List<Vector2> shapeCoordinates_square;
+    private List<Vector3> shapeCoordinates_plus;
+    private List<Vector3> shapeCoordinates_cross;
+    private List<Vector3> shapeCoordinates_triangle;
+    private List<Vector3> shapeCoordinates_boid;
 
     [Header("Wrapping")]
     [SerializeField] private float wrapAnimationDuration = 1f;
     [SerializeField] private float wrapAnimationRadiusMultiplier = 1f;
     [SerializeField] private float wrapAnimationThickness = 3f;
     [SerializeField] private EdgeResponse edgeResponse;
-    public void SetEdgeResponse(int enumIndex)
-    {
-        edgeResponse = (EdgeResponse)enumIndex;
-        switch (edgeResponse)
-        {
-            case EdgeResponse.Overflow:
-            {
-                WrapPoint_MasterFunction = MovePoint;
-                break;
-            }
-            case EdgeResponse.Wrap:
-            {
-                WrapPoint_MasterFunction = MovePoint_WrappedRectangular;
-                break;
-            }
-            case EdgeResponse.Kill:
-            {
-                break;
-            }
-            case EdgeResponse.Respawn:
-            {
-                break;
-            }
-            default:
-            {
-                break;
-            }
-        }
-    }
 
     // Misc
-    public Vector3Int Bounds { get { return guiCoordinateSystem.Bounds; } }
+    public Vector3Int Bounds { get { return guiCoordinateSystem.bounds; } }
 
     [Header("Overlays")]
     [SerializeField] private float overlayThickness = 0.25f;
@@ -323,55 +218,19 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
     public delegate void VoidDelegate_ZeroParameters();
     public delegate void VoidDelegate_IntVector2(int arg1, Vector2 arg2);
     public delegate void VoidDelegate_IntVector3(int arg1, Vector3 arg2);
+    public delegate void VoidDelegate_Vector3Float(Vector3 arg1, float arg2);
 
     // Generation delegates
     public static event VoidDelegate_ZeroParameters Generate_MasterFunction;
 
     // Misc. delegates
     public static event VoidDelegate_IntVector3 WrapPoint_MasterFunction;
+    public static event VoidDelegate_Vector3Float DrawPoint_MasterFunction;
 
     // Animation components
     [SerializeField] private List<PointBehavior_Animate> animationBehaviors = new List<PointBehavior_Animate>();
     [SerializeField] private List<PointBehavior_Animate> overlayBehaviors = new List<PointBehavior_Animate>();
     [SerializeField] private List<PointBehavior_Animate> selectionBehaviors = new List<PointBehavior_Animate>();
-    public void AddBehavior(PointBehavior_Animate behavior)
-    {
-        // TODO: Differentiate between animation, overlay, and selection
-        PointBehavior_Animate animationBehavior = behavior as PointBehavior_Animate;
-        PointBehavior_Animate overlayBehavior = behavior as PointBehavior_Animate;
-        PointBehavior_Animate selectionBehavior = behavior as PointBehavior_Animate;
-        if (animationBehavior != null)      // Animation component
-        {
-            animationBehaviors.Add(behavior);
-        }
-        else if (overlayBehavior != null)   // Overlay component
-        {
-            overlayBehaviors.Add(behavior);
-        }
-        else if (selectionBehavior != null) // Selection component
-        {
-            selectionBehaviors.Add(behavior);
-        }
-    }
-    public void RemoveBehavior(PointBehavior_Animate behavior)
-    {
-        // TODO: Differentiate between animation, overlay, and selection
-        PointBehavior_Animate animationBehavior = behavior as PointBehavior_Animate;
-        PointBehavior_Animate overlayBehavior = behavior as PointBehavior_Animate;
-        PointBehavior_Animate selectionBehavior = behavior as PointBehavior_Animate;
-        if (animationBehavior != null)      // Animation component
-        {
-            animationBehaviors.Remove(behavior);
-        }
-        else if (overlayBehavior != null)   // Overlay component
-        {
-            overlayBehaviors.Remove(behavior);
-        }
-        else if (selectionBehavior != null) // Selection component
-        {
-            selectionBehaviors.Remove(behavior);
-        }
-    }
 
 
 
@@ -380,6 +239,7 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
         drawMatrix = transform.localToWorldMatrix;
         UpdateDrawParameters();
         EvaluateShapeCoordinates();
+        SetPointType(pointType);    // Runs setter, which selects drawing delegate
         animationBehaviors.Clear();
         foreach (Transform child in transform)
         {
@@ -403,6 +263,8 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
     {
         base.OnEnable();
 
+        previousPointType = pointType;
+
         Generate_MasterFunction = Generate_Random;
         WrapPoint_MasterFunction = MovePoint_WrappedRectangular;
 
@@ -422,6 +284,12 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
     private void OnValidate()
     {
         UpdateDrawParameters();
+
+        if (previousPointType != pointType)
+        {
+            previousPointType = pointType;
+            SetPointType(pointType);
+        }
     }
 
     // Behaviors
@@ -460,40 +328,48 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
         }
     }
 
-    // Rendering
-    public override void DrawShapes(Camera cam)
+    #region Behavior functionality
+    #region Components
+    public void AddBehavior(PointBehavior_Animate behavior)
     {
-        using (Draw.Command(cam))
+        // TODO: Differentiate between animation, overlay, and selection
+        PointBehavior_Animate animationBehavior = behavior as PointBehavior_Animate;
+        PointBehavior_Animate overlayBehavior = behavior as PointBehavior_Animate;
+        PointBehavior_Animate selectionBehavior = behavior as PointBehavior_Animate;
+        if (animationBehavior != null)      // Animation component
         {
-            // Drawing points
-            foreach (Vector3 pos in positions3)
-            {
-                Draw.Rectangle(pos, Vector2.one * pointSize);
-            }
-
-            // Drawing overlays
-            //      n^2 web
-            // TODO: Replace with component-based drawing
-            //Draw.Thickness = overlayThickness;
-            //for (int i = 0; i < positions3.Count - 1; i++)
-            //{
-            //    for (int j = i; j < positions3.Count; j++)
-            //    {
-            //        Draw.Line(positions3[i], positions3[j]);
-            //    }
-            //}
-
-            // Drawing wrap event indicator animations
-            Draw.Thickness = wrapAnimationThickness;
-            foreach (PointAnimProxy3 wrapProxy in wrapProxies)  // TODO: Make 3D
-            {
-                Draw.Ring(wrapProxy.position, pointSize * wrapAnimationRadiusMultiplier * wrapProxy.GetAnimationProgress());
-            }
+            animationBehaviors.Add(behavior);
+        }
+        else if (overlayBehavior != null)   // Overlay component
+        {
+            overlayBehaviors.Add(behavior);
+        }
+        else if (selectionBehavior != null) // Selection component
+        {
+            selectionBehaviors.Add(behavior);
         }
     }
-
-#region Behavior functionality
-#region Generation
+    public void RemoveBehavior(PointBehavior_Animate behavior)
+    {
+        // TODO: Differentiate between animation, overlay, and selection
+        PointBehavior_Animate animationBehavior = behavior as PointBehavior_Animate;
+        PointBehavior_Animate overlayBehavior = behavior as PointBehavior_Animate;
+        PointBehavior_Animate selectionBehavior = behavior as PointBehavior_Animate;
+        if (animationBehavior != null)      // Animation component
+        {
+            animationBehaviors.Remove(behavior);
+        }
+        else if (overlayBehavior != null)   // Overlay component
+        {
+            overlayBehaviors.Remove(behavior);
+        }
+        else if (selectionBehavior != null) // Selection component
+        {
+            selectionBehaviors.Remove(behavior);
+        }
+    }
+    #endregion // Components
+    #region Generation
     public void Generate()
     {
         OnPreGeneratePoint();
@@ -532,7 +408,7 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
             return;
         }
 
-        Vector3 bounds = (Vector3Int)guiCoordinateSystem.Bounds;
+        Vector3 bounds = (Vector3Int)guiCoordinateSystem.bounds;
         bounds /= 2f;
         
         // TODO: Switch on bounds shape
@@ -541,19 +417,150 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
             positions3.Add(GenerateRandomPoint_Rectangle(bounds));
         }
     }
-#endregion  // Generation
-#region Overlay
-#endregion  // Overlay
-#region Select
-#endregion  // Select
-#region Animation
-#endregion  // Animation
-#endregion  // Behavior functionality
+    #endregion  // Generation
+    #region Overlay
+    #endregion  // Overlay
+    #region Select
+    #endregion  // Select
+    #region Animation
+    #endregion  // Animation
+    #endregion  // Behavior functionality
 
-#region Internal functionality
+    #region Points
+    public void SetPoint(int index, Vector2 point)
+    {
+        positions2[index] = point;
+    }
+    public void MovePoint(int index, Vector3 displacement)
+    {
+        Vector3 newPos = positions3[index] + displacement * Time.deltaTime;
+        positions3[index] = newPos;
+    }
+    public void MovePoint_WrappedRectangular(int index, Vector3 displacement)
+    {
+        Vector3 newPos = positions3[index] + displacement * Time.deltaTime;
+        Vector3 wrapAnimationPosition = newPos;
+
+        // Wrapping
+        Vector3 boundsHalf = guiCoordinateSystem.BoundsHalf;
+        Vector3 interval = (Vector3)guiCoordinateSystem.bounds;
+        bool shouldWrap = false;
+        // TODO: Should consider corner cases, where it may have exeeded the bounds on several axes in one update
+        // For now, just project
+        if (newPos.x < -boundsHalf.x)
+        {
+            newPos.x += interval.x;
+            shouldWrap = true;
+            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[2], Vector3.up);
+        }
+        else if (newPos.x > boundsHalf.x)
+        {
+            newPos.x -= interval.x;
+            shouldWrap = true;
+            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[3], Vector3.up);
+        }
+        if (newPos.y < -boundsHalf.y)
+        {
+            newPos.y += interval.y;
+            shouldWrap = true;
+            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[2], Vector2.right);
+        }
+        else if (newPos.y > boundsHalf.y)
+        {
+            newPos.y -= interval.y;
+            shouldWrap = true;
+            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[1], Vector2.right);
+        }
+        // TODO: Complete z-axis wrapping
+        if (newPos.z < -boundsHalf.z)
+        {
+            newPos.z += interval.z;
+            shouldWrap = true;
+            //wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[2].point, Vector2.right);
+        }
+        else if (newPos.z > boundsHalf.z)
+        {
+            newPos.z -= interval.z;
+            shouldWrap = true;
+            //wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[1], Vector2.right);
+        }
+
+        if (shouldWrap)
+        {
+            wrapProxies.Add(new PointAnimProxy3(wrapAnimationPosition, wrapAnimationDuration));
+        }
+
+        positions3[index] = newPos;
+    }
+    public int PointCount()
+    {
+        return positions2.Count;
+    }
+    #endregion // Points
+
+    #region Drawing
+    public override void DrawShapes(Camera cam)
+    {
+        using (Draw.Command(cam))
+        {
+            // Drawing points
+            foreach (Vector3 pos in positions3)
+            {
+                DrawPoint_MasterFunction?.Invoke(pos, pointSize);
+            }
+
+            // Drawing overlays
+            //      n^2 web
+            // TODO: Replace with component-based drawing
+            //Draw.Thickness = overlayThickness;
+            //for (int i = 0; i < positions3.Count - 1; i++)
+            //{
+            //    for (int j = i; j < positions3.Count; j++)
+            //    {
+            //        Draw.Line(positions3[i], positions3[j]);
+            //    }
+            //}
+
+            // Drawing wrap event indicator animations
+            Draw.Thickness = wrapAnimationThickness;
+            foreach (PointAnimProxy3 wrapProxy in wrapProxies)  // TODO: Make 3D
+            {
+                Draw.Ring(wrapProxy.position, pointSize * wrapAnimationRadiusMultiplier * wrapProxy.GetAnimationProgress());
+            }
+        }
+    }
+
+    private void DrawPoint_Plus(Vector3 position, float radius)
+    {
+        Draw.Line(position + shapeCoordinates_plus[0], position + shapeCoordinates_plus[1]);
+        Draw.Line(position + shapeCoordinates_plus[2], position + shapeCoordinates_plus[3]);
+    }
+    private void DrawPoint_Cross(Vector3 position, float radius)
+    {
+        Draw.Line(position + shapeCoordinates_cross[0], position + shapeCoordinates_cross[1]);
+        Draw.Line(position + shapeCoordinates_cross[2], position + shapeCoordinates_cross[3]);
+    }
+    private void DrawPoint_Disc(Vector3 position, float radius)
+    {
+        Draw.Disc(position, pointSize);
+    }
+    private void DrawPoint_Circle(Vector3 position, float radius)
+    {
+        Draw.Ring(position, pointSize);
+    }
+    private void DrawPoint_Triangle(Vector3 position, float radius)
+    {
+
+    }
+    private void DrawPoint_Boid(Vector3 position, float radius)
+    {
+
+    }
+
     private void UpdateDrawParameters()
     {
         Draw.LineGeometry = lineGeometry;
+        Draw.DiscGeometry = discGeometry;
         Draw.ThicknessSpace = thicknessSpace;
         Draw.Thickness = thickness;
         Draw.Matrix = drawMatrix;
@@ -563,51 +570,116 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
     {
         Line plusLineHorizontal = pointPrefabsParent.Find("Plus").Find("Horizontal Stroke").GetComponent<Line>();
         Line plusLineVertical = pointPrefabsParent.Find("Plus").Find("Vertical Stroke").GetComponent<Line>();
-        shapeCoordinates_plus = new List<Vector2>
+        shapeCoordinates_plus = new List<Vector3>
         {
-            plusLineHorizontal.Start.normalized,
-            plusLineHorizontal.End.normalized,
-            plusLineVertical.Start.normalized,
-            plusLineVertical.End.normalized
+            plusLineHorizontal.Start.normalized * pointSize,
+            plusLineHorizontal.End.normalized * pointSize,
+            plusLineVertical.Start.normalized * pointSize,
+            plusLineVertical.End.normalized * pointSize
         };
 
         Line crossLineNE = pointPrefabsParent.Find("Cross").Find("NE Stroke").GetComponent<Line>();
         Line crossLineSE = pointPrefabsParent.Find("Cross").Find("SE Stroke").GetComponent<Line>();
-        shapeCoordinates_cross = new List<Vector2>
+        shapeCoordinates_cross = new List<Vector3>
         {
-            crossLineNE.Start.normalized,
-            crossLineNE.End.normalized,
-            crossLineSE.Start.normalized,
-            crossLineSE.End.normalized
+            crossLineNE.Start.normalized * pointSize,
+            crossLineNE.End.normalized * pointSize,
+            crossLineSE.Start.normalized * pointSize,
+            crossLineSE.End.normalized * pointSize
         };
 
-        shapeCoordinates_circle = 1f;
-
         Triangle triangle = pointPrefabsParent.Find("Triangle").GetComponent<Triangle>();
-        shapeCoordinates_triangle = new List<Vector2>
+        shapeCoordinates_triangle = new List<Vector3>
         {
-            triangle.A.normalized,
-            triangle.B.normalized,
-            triangle.C.normalized
+            triangle.A.normalized * pointSize,
+            triangle.B.normalized * pointSize,
+            triangle.C.normalized * pointSize
         };
 
         Quad boid = pointPrefabsParent.Find("Boid").GetComponent<Quad>();
-        shapeCoordinates_boid = new List<Vector2>
+        shapeCoordinates_boid = new List<Vector3>
         {
-            boid.A.normalized,
-            boid.B.normalized,
-            boid.C.normalized,
-            boid.D.normalized
-        };
-
-        Polyline square = pointPrefabsParent.Find("Square Hollow").GetComponent<Polyline>();
-        shapeCoordinates_square = new List<Vector2>
-        {
-            square.points[0].point.normalized,
-            square.points[1].point.normalized,
-            square.points[2].point.normalized,
-            square.points[3].point.normalized
+            boid.A.normalized * pointSize,
+            boid.B.normalized * pointSize,
+            boid.C.normalized * pointSize,
+            boid.D.normalized * pointSize
         };
     }
-#endregion  // Internal functionality
+    #endregion // Drawing
+
+    #region Member variables
+    public void SetEdgeResponse(int enumIndex)
+    {
+        edgeResponse = (EdgeResponse)enumIndex;
+        switch (edgeResponse)
+        {
+            case EdgeResponse.Overflow:
+            {
+                WrapPoint_MasterFunction = MovePoint;
+                break;
+            }
+            case EdgeResponse.Wrap:
+            {
+                WrapPoint_MasterFunction = MovePoint_WrappedRectangular;
+                break;
+            }
+            case EdgeResponse.Kill:
+            {
+                break;
+            }
+            case EdgeResponse.Respawn:
+            {
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+    }
+    public PrefabType SetPointType(PrefabType type)
+    {
+        pointType = type;
+        switch (pointType)
+        {
+            case PrefabType.Plus:
+            {
+                DrawPoint_MasterFunction = DrawPoint_Plus;
+                break;
+            }
+            case PrefabType.Cross:
+            {
+                DrawPoint_MasterFunction = DrawPoint_Cross;
+                break;
+            }
+            case PrefabType.Disc:
+            {
+                DrawPoint_MasterFunction = DrawPoint_Disc;
+                break;
+            }
+            case PrefabType.Circle:
+            {
+                DrawPoint_MasterFunction = DrawPoint_Circle;
+                break;
+            }
+            case PrefabType.Triangle:
+            {
+                DrawPoint_MasterFunction = DrawPoint_Triangle;
+                break;
+            }
+            case PrefabType.Boid:
+            {
+                DrawPoint_MasterFunction = DrawPoint_Boid;
+                break;
+            }
+            default:
+            {
+                DrawPoint_MasterFunction = null;
+                break;
+            }
+        }
+
+        return pointType;
+    }
+    #endregion // Member variables
 }

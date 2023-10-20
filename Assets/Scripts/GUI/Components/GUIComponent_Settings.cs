@@ -18,7 +18,7 @@ public class GUIComponent_Settings : GUIComponent
     [SerializeField] private GUIIncrementSliderInput controllerStepDuration;
 
     public bool IsGUISmall { get { return controllerGUISize.IsFlippedLeft(); } }
-    public bool Is2D { get { return controllerGUISize.IsFlippedLeft(); } }
+    public bool Is2D { get { return controllerDimension.IsFlippedLeft(); } }
     public bool ShowBounds { get { return controllerShowBounds.isOn; } }
     public BoundsType BoundingType { get { return BoundsType.Cube; } }  // TODO: Implement this
     public EdgeResponse EdgeBehavior { get { return (EdgeResponse)controllerEdgeResponse.value; } }

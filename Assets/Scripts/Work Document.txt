@@ -1,5 +1,6 @@
 TODO: 
 - Presets (cycleable, like in FL Studio - interesting premade modes so you don't have to do all of the setup yourself!)
+- Wind: Periodic random (good for checking spring system)
 
 GUI:
 - Set color on all side menu elements

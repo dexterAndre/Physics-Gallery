@@ -67,7 +67,7 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
     [SerializeField, Tooltip("Boundary visualizer. Also used to reference graphics settings from, for example in subobjects like ticks or points of interest.")]
     private List<Vector3> gridCorners = new List<Vector3>();
     public List<Vector3> GridCorners { get { return gridCorners; } }
-    public float ContentAreaRadius
+    public float OriginToContentAreaRadius
     {
         get
         {
@@ -80,17 +80,22 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
 
     [Header("Screen")]
     [SerializeField, Tooltip("Maximum content size before scaling camera size based on it.")]
-    private int maxScreenSizeForContentScaling = 1080;
-    public int MaxScreenSizeForContentScaling { get { return maxScreenSizeForContentScaling; } }
+    private int maxScalingScreenDimension = 1080;
+    public int MaxScalingScreenDimension { get { return maxScalingScreenDimension; } }
     [SerializeField, Range(0f, 1f), Tooltip("Padding added between content and end of the screen, preserving an aspect ratio of 1.")] private float contentAreaPadding = 0.15f;
     public float ContentAreaPadding
     {
         get { return contentAreaPadding; }
         set { contentAreaPadding = value; }
     }
+    public float OriginToContentAreaBorder { get { return OriginToContentAreaRadius * (1f + ContentAreaPadding); } }
+    public float OriginToTitleMenuPosition { get { return OriginToContentAreaRadius + titleMenuPaddingOffset * (OriginToContentAreaBorder - OriginToContentAreaRadius); } }
     public bool IsScreenWidthDominant { get { return Camera.main.pixelWidth >= Camera.main.pixelHeight; } }
     private float smallestScreenDimension;
     public float SmallestScreenDimension { get { return smallestScreenDimension; } }
+    public float OriginToSmallestDimensionBorder { get { return IsScreenWidthDominant ? Camera.main.orthographicSize : Camera.main.orthographicSize * Camera.main.aspect; } }
+    public float OriginToLargestDimensionBorder {  get { return IsScreenWidthDominant ? Camera.main.orthographicSize * Camera.main.aspect : Camera.main.orthographicSize; } }
+    public bool IsSmallestScreenDimensionGreaterThanMaxScalingDimension { get { return SmallestScreenDimension > MaxScalingScreenDimension; } }
     //Camera resizing cache
     private int currentCameraWidth;
     private int currentCameraHeight;
@@ -224,7 +229,6 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
             onResizeEvent += RecalculateCoordinateSystem;
         }
 
-        InitializeCameraSizes();        // TODO: Consider if needed
         SetDrawParameters();
     }
 
@@ -360,75 +364,92 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
                 Vector3 u = mainCam.transform.up;
 
                 // Content circumcircle
-                Draw.Ring(Vector3.zero, ContentAreaRadius, debugColor);
+                Draw.Ring(Vector3.zero, OriginToContentAreaRadius, debugColor);
 
                 // Square screen trimmings
-                // TODO: Support MaxScreenSizeForContentScaling
-                if (mainCam.pixelWidth != mainCam.pixelHeight || SmallestScreenDimension > MaxScreenSizeForContentScaling)
+                if (mainCam.pixelWidth != mainCam.pixelHeight || IsSmallestScreenDimensionGreaterThanMaxScalingDimension)
                 {
                     Vector3 rectCornerPosition;
                     if (IsScreenWidthDominant)
                     {
-                        rectCornerPosition = new Vector3(ContentAreaRadius * (1f + ContentAreaPadding), -mainCam.orthographicSize, 0);
+                        rectCornerPosition = new Vector3(OriginToContentAreaBorder, -OriginToSmallestDimensionBorder, 0);
                     }
                     else
                     {
-                        rectCornerPosition = new Vector3(-mainCam.orthographicSize * mainCam.aspect, ContentAreaRadius * (1f + ContentAreaPadding), 0);
+                        rectCornerPosition = new Vector3(-OriginToSmallestDimensionBorder, OriginToContentAreaBorder, 0);
                     }
 
-                    float trimFraction = IsScreenWidthDominant ? (float)(mainCam.pixelWidth - mainCam.pixelHeight) / mainCam.pixelWidth : (float)(mainCam.pixelHeight - mainCam.pixelWidth) / mainCam.pixelHeight;
-                    float trimLength;
-                    if (IsScreenWidthDominant)
-                        trimLength = mainCam.aspect * mainCam.orthographicSize * trimFraction;
-                    else
-                        trimLength = mainCam.orthographicSize * trimFraction;
+                    float largeTrimLength = OriginToLargestDimensionBorder - OriginToContentAreaBorder;
+                    Vector3 borderSE = r * OriginToContentAreaBorder - u * OriginToContentAreaBorder;
+                    Vector3 borderNW = -r * OriginToContentAreaBorder + u * OriginToContentAreaBorder;
 
-                    Vector3 trimingBorderSpan = 2f * rectCornerPosition;
-                    Vector2 rectSize = rectCornerPosition;
-                    if (IsScreenWidthDominant)
-                        rectSize = new Vector2(trimLength, -2 * rectSize.y);
-                    else
-                        rectSize = new Vector2(-2 * rectSize.x, trimLength);
-
+                    // Content area border rectangular projections
                     Draw.Rectangle(
-                        (IsScreenWidthDominant ? -r : r) * rectCornerPosition.x + u * rectCornerPosition.y,
+                        borderSE,
                         mainCam.transform.forward,
-                        new Vector2(IsScreenWidthDominant ? (-rectSize.x) : rectSize.x, rectSize.y),
+                        new Vector2(IsScreenWidthDominant ? largeTrimLength : -2 * OriginToContentAreaBorder, IsScreenWidthDominant ? 2 * OriginToContentAreaBorder : -largeTrimLength),
                         RectPivot.Corner,
                         debugColorTransparent);
                     Draw.Rectangle(
-                        r * rectCornerPosition.x + (IsScreenWidthDominant ? u : -u) * rectCornerPosition.y,
+                        borderNW,
                         mainCam.transform.forward,
-                        new Vector2(rectSize.x, IsScreenWidthDominant ? rectSize.y : (-rectSize.y)),
+                        new Vector2(IsScreenWidthDominant ? -largeTrimLength : 2 * OriginToContentAreaBorder, IsScreenWidthDominant ? 2 * -OriginToContentAreaBorder : largeTrimLength),
                         RectPivot.Corner,
                         debugColorTransparent);
 
+                    // Content area border lines
                     Draw.Line(
-                        (IsScreenWidthDominant ? r : -r) * rectCornerPosition.x + (IsScreenWidthDominant ? -u : u) * trimingBorderSpan.y / 2f,
-                        r * rectCornerPosition.x + u * trimingBorderSpan.y / 2f,
+                        borderSE,
+                        borderSE + (IsScreenWidthDominant ? u : -r) * 2 * OriginToContentAreaBorder,
                         debugColor);
                     Draw.Line(
-                        -r * rectCornerPosition.x - u * trimingBorderSpan.y / 2f,
-                        (IsScreenWidthDominant ? -r : r) * rectCornerPosition.x + (IsScreenWidthDominant ? u : -u) * trimingBorderSpan.y / 2f,
+                        borderNW,
+                        borderNW + (IsScreenWidthDominant ? -u : r) * 2 * OriginToContentAreaBorder,
                         debugColor);
+
+                    // Filling remaining area that is discounted from scaling
+                    if (IsSmallestScreenDimensionGreaterThanMaxScalingDimension)
+                    {
+                        float smallTrimLength = OriginToSmallestDimensionBorder - OriginToContentAreaBorder;
+                        Vector3 screenBorderSE = r * (IsScreenWidthDominant ? OriginToLargestDimensionBorder : OriginToSmallestDimensionBorder) - u * (IsScreenWidthDominant ? OriginToSmallestDimensionBorder : OriginToLargestDimensionBorder);
+                        Vector3 screenBorderNW = -r * (IsScreenWidthDominant ? OriginToLargestDimensionBorder : OriginToSmallestDimensionBorder) + u * (IsScreenWidthDominant ? OriginToSmallestDimensionBorder : OriginToLargestDimensionBorder);
+
+                        Draw.Rectangle(
+                            screenBorderSE,
+                            mainCam.transform.forward,
+                            new Vector2(
+                                IsScreenWidthDominant ? -2 * OriginToLargestDimensionBorder : -smallTrimLength, 
+                                IsScreenWidthDominant ? smallTrimLength : 2 * OriginToLargestDimensionBorder),
+                            RectPivot.Corner,
+                            debugColorTransparent);
+                        Draw.Rectangle(
+                            screenBorderNW,
+                            mainCam.transform.forward,
+                            new Vector2(
+                                IsScreenWidthDominant ? 2 * OriginToLargestDimensionBorder : smallTrimLength,
+                                IsScreenWidthDominant ? -smallTrimLength : -2 * OriginToLargestDimensionBorder),
+                            RectPivot.Corner,
+                            debugColorTransparent);
+
+                        Draw.Line(
+                            borderSE,
+                            borderSE + (IsScreenWidthDominant ? -r : u) * 2 * OriginToContentAreaBorder,
+                            debugColor);
+                        Draw.Line(
+                            borderNW,
+                            borderNW + (IsScreenWidthDominant ? r : -u) * 2 * OriginToContentAreaBorder,
+                            debugColor);
+                    }
                 }
-
-
-                // If smallest screen dimension is larger than MaxScreenSizeForContentScaling, draw two more rects to cover what's being trimmed off in the non-dominant dimensions
 
                 // Title menu location
                 Draw.Line(
-                    u * ContentAreaRadius,
-                    u * (IsScreenWidthDominant ? mainCam.orthographicSize : mainCam.orthographicSize * mainCam.aspect),
+                    u * OriginToContentAreaRadius,
+                    u * OriginToContentAreaBorder,
                     debugColor);
-                float paddingLength;
-                if (IsScreenWidthDominant)
-                    paddingLength = mainCam.orthographicSize - ContentAreaRadius;
-                else
-                    paddingLength = mainCam.orthographicSize * mainCam.aspect - ContentAreaRadius;
                 Draw.Line(
-                    u * (ContentAreaRadius + titleMenuPaddingOffset * paddingLength) - r * ContentAreaRadius / 10f,
-                    u * (ContentAreaRadius + titleMenuPaddingOffset * paddingLength) + r * ContentAreaRadius / 10f,
+                    u * OriginToTitleMenuPosition - r * OriginToContentAreaRadius / 10f,
+                    u * OriginToTitleMenuPosition + r * OriginToContentAreaRadius / 10f,
                     debugColor);
 
                 // Resetting draw parameters
@@ -808,19 +829,11 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
     }
     #endregion // Coordinate markers
 
-    // TODO: Set above furthest diagonal, not just topmost point when at default orientation
     private void SetTitleMenuPosition()
     {
-        //float screenSizeLimit = Camera.main.pixelHeight > MaxScreenSizeForContentScaling ? MaxScreenSizeForContentScaling : Camera.main.pixelHeight;
-        //float yOffset = titleMenuPaddingRelative ? (titleMenuPaddingOffset * screenSizeLimit / 2f) : titleMenuPaddingOffset;
-        //float yPosition = Camera.main.WorldToScreenPoint(gridCorners[0]).y - Camera.main.pixelHeight / 2f + yOffset;
-
-        //titleMenuPositionCached = new Vector3(0f, yPosition, 0f);
-
-        //titleMenu.GetComponent<RectTransform>().localPosition = titleMenuPositionCached;
-
-        Vector3 titleMenuWorldPosition = new Vector3(0f, 0.5f * ContentAreaRadius * (1f + ContentAreaPadding), 0f);
-        titleMenuPositionCached = Camera.main.WorldToScreenPoint(titleMenuWorldPosition);
+        // Title menu's pivot is in the center, so x = 0 and y = title height relative to half of pixel height
+        titleMenuPositionCached.x = 0f;
+        titleMenuPositionCached.y = 0.5f * OriginToTitleMenuPosition / (IsScreenWidthDominant ? OriginToSmallestDimensionBorder : OriginToLargestDimensionBorder) * Camera.main.pixelHeight;
         titleMenu.GetComponent<RectTransform>().localPosition = titleMenuPositionCached;
     }
 
@@ -844,24 +857,17 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
 
     public void RecalculateCameraSize()
     {
-        // 1. Trim screen rectangle and operate only on largest screen square
+        // 1. Inscribe content area cuboid inside a sphere with predefined padding
+        float cameraSize = OriginToContentAreaBorder;
+
+        // 2. Cap content area after passing MaxScalingScreenDimension
+        // E.g. it stops scaling after smallest dimension is 1080, this is configurable
         smallestScreenDimension = IsScreenWidthDominant ? cam.pixelHeight : cam.pixelWidth;
-
-        // 2. Inscribe content area cuboid inside a sphere
-        float cameraSize = GridCorners[0].magnitude;
-
-        // 3. Add padding on top of sphere's radius
-        cameraSize *= (1f + ContentAreaPadding);
-
-        // 4. Cap content sphere after set screen size
-        if (SmallestScreenDimension > MaxScreenSizeForContentScaling)
+        if (SmallestScreenDimension > MaxScalingScreenDimension)
         {
-            cameraSize *= (float)SmallestScreenDimension / MaxScreenSizeForContentScaling;
+            cameraSize *= (float)SmallestScreenDimension / MaxScalingScreenDimension;
         }
 
-        // 5. Set title on top of current content sphere radius, not attached to edge of screen
-
-        // orthographicSize only counts vertical half-height
         cam.orthographicSize = IsScreenWidthDominant ? cameraSize : cameraSize / cam.aspect;
     }
 

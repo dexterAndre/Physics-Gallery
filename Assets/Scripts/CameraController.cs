@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [ExecuteAlways]
 public class CameraController : MonoBehaviour
@@ -34,10 +35,13 @@ public class CameraController : MonoBehaviour
     private float preResetYaw = 0f;
     [SerializeField] private AnimationCurve mouseAxisBias;
     [SerializeField] private uint mouseAxisBiasPower = 1;
+    private bool isMouseOverGUI = false;
+    private bool startedClickOnGUI = false;
 
     [Header("References")]
     [SerializeField] private Camera cam;
     [SerializeField] private CoordinateSystem coordinateSystem;
+    [SerializeField] private List<PointerEventReporter> guiExclusionList = new List<PointerEventReporter>();
 
     [Header("Debug")]
     [SerializeField] private bool debug = false;
@@ -73,14 +77,46 @@ public class CameraController : MonoBehaviour
         initYaw = yaw;
     }
 
+    private void OnEnable()
+    {
+        foreach (PointerEventReporter pointerEventReporter in guiExclusionList)
+        {
+            pointerEventReporter.onPointerEnter += OnMouseEnterGUI;
+            pointerEventReporter.onPointerExit += OnMouseExitGUI;
+        }
+    }
+
+    private void OnDisable()
+    {
+        foreach (PointerEventReporter pointerEventReporter in guiExclusionList)
+        {
+            pointerEventReporter.onPointerEnter -= OnMouseEnterGUI;
+            pointerEventReporter.onPointerExit -= OnMouseExitGUI;
+        }
+    }
+
     private void LateUpdate()
     {
         ConditionalUpdateResetTimer();
 
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+        {
+            if (isMouseOverGUI)
+            {
+                startedClickOnGUI = true;
+            }
+            else
+            {
+                startedClickOnGUI = false;
+            }
+
+            mouseCoordinatePrevious = (Vector2)Input.mousePosition;
+        }
+
         Vector2 mouseDelta = Vector2.zero;
-            
+
         // Left-click: rotates camera on hold, floats the camera in direction of mouse (with mouse velocity) on release
-        if (Input.GetMouseButton(0) && !IsResetting())
+        if (Input.GetMouseButton(0) && !IsResetting() && !startedClickOnGUI)
         {
             mouseDelta = mouseCoordinatePrevious - (Vector2)Input.mousePosition;
             mouseDelta = new Vector2(mouseDelta.x * inverseMouseControls.x, mouseDelta.y * inverseMouseControls.y);
@@ -105,7 +141,7 @@ public class CameraController : MonoBehaviour
         }
 
         // Right-click: initiates reset animation
-        if (Input.GetMouseButton(1) && !IsResetting())
+        if (Input.GetMouseButton(1) && !IsResetting() && !startedClickOnGUI)
         {
             resetTimer += Time.deltaTime;
             preResetPitch = pitch;
@@ -181,5 +217,15 @@ public class CameraController : MonoBehaviour
     private float ResetProgress()
     {
         return resetTimer / resetDuration;
+    }
+
+    private void OnMouseEnterGUI()
+    {
+        isMouseOverGUI = true;
+    }
+
+    private void OnMouseExitGUI()
+    {
+        isMouseOverGUI = false;
     }
 }

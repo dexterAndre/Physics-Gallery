@@ -12,6 +12,16 @@ public class MathUtils : MonoBehaviour
         return to_min + ((value - from_min) / (from_max - from_min)) * (to_max - to_min);
     }
 
+    public static int Wrap(int value, int min, int max)
+    {
+        int modulo = value % (max - min);
+
+        if (modulo >= 0)
+            return min + value % (max - min);
+        else
+            return max + value % (max - min);
+    }
+
     // TODO: Make centerpoint-agnostic
     public static float Wrap(float value, float min, float max)
     {

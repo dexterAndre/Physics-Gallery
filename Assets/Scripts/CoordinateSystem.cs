@@ -1,13 +1,8 @@
 using Shapes;
 using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using TMPro;
 using Unity.VisualScripting;
-using UnityEditor;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 
 
@@ -50,7 +45,7 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
     #endregion
 
     [Header("Content Area")]
-    [SerializeField] GUIComponent_Settings settingsComponent;
+    [SerializeField] GUIComponent_Settings2 settingsComponent;
     public bool Is2D
     {
         get
@@ -90,6 +85,8 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
     }
     public float OriginToContentAreaBorder { get { return OriginToContentAreaRadius * (1f + ContentAreaPadding); } }
     public float OriginToTitleMenuPosition { get { return OriginToContentAreaRadius + titleMenuPaddingOffset * (OriginToContentAreaBorder - OriginToContentAreaRadius); } }
+    public float OriginToSideMenuLeftPosition { get { return OriginToContentAreaRadius + sideMenuPaddingOffset * (OriginToContentAreaBorder - OriginToContentAreaRadius); } }
+    public float OriginToSideMenuRightPosition { get { return OriginToSideMenuLeftPosition + 2f * (GetSideMenuSize().x / currentCameraWidth) * OriginToLargestDimensionBorder; } }
     public bool IsScreenWidthDominant { get { return Camera.main.pixelWidth >= Camera.main.pixelHeight; } }
     private float smallestScreenDimension;
     public float SmallestScreenDimension { get { return smallestScreenDimension; } }
@@ -153,24 +150,58 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
     [SerializeField] private float gridMarkerThickness = 1f;
 
     [Header("Menu Settings")]
-    [SerializeField, Range(0f, 1f), Tooltip("Screen-space percentage of how much title menu is offset from the top of the grid. Acts as a multiplier if titleMenuPaddingRelative is true.")]
-    float titleMenuPaddingOffset = 0.1f;
-    [SerializeField] bool titleMenuPaddingRelative = false;
-    [SerializeField] private float fontSizeMultiplier = 0.1f;
-    [SerializeField] private Vector2 sideMenuOffsetPixels = new Vector2(100f, -100f);
-    public Vector2 SideMenuOffsetPixels
+    [SerializeField, Range(0f, 1f), Tooltip("Screen-space percentage of how much title menu is offset from the top of the content area.")]
+    private float titleMenuPaddingOffset = 0.1f;
+    private Vector3 titleMenuPositionCached = Vector3.zero;
+    private Vector3 sideMenuPositionCached = Vector3.zero;
+    [SerializeField, Range(0f, 1f), Tooltip("Screen-space percentage of how much side menu is offset from the right of the content area.")]
+    private float sideMenuPaddingOffset = 0.1f;
+    public Vector2 GetSideMenuSize()
     {
-        get { return sideMenuOffsetPixels; }
-        set
+        return sideMenu.GetComponent<RectTransform>().rect.size;
+    }
+    [SerializeField, Range(0f, 1f), Tooltip("Screen-space percentage of how far into the screen the safe zone is. Percentage is based on smallest half-dimension.")]
+    private float screenSafeZone = 0.05f;
+    public Vector3 safeZoneNE
+    {
+        get
         {
-            sideMenuOffsetPixels = value;
-            if (sideMenuOffsetPixels.x < 0)
-                sideMenuOffsetPixels.x = 0;
-            if (sideMenuOffsetPixels.y < 0)
-                sideMenuOffsetPixels.y = 0;
+            float pixelCutoff = OriginToSmallestDimensionBorder * screenSafeZone;
+            return new Vector2(
+                (IsScreenWidthDominant ? OriginToLargestDimensionBorder : OriginToSmallestDimensionBorder) - pixelCutoff,
+                (IsScreenWidthDominant ? OriginToSmallestDimensionBorder : OriginToLargestDimensionBorder) - pixelCutoff);
         }
     }
-    private Vector3 titleMenuPositionCached = Vector3.zero;
+    public Vector3 safeZoneNW
+    {
+        get
+        {
+            float pixelCutoff = OriginToSmallestDimensionBorder * screenSafeZone;
+            return new Vector2(
+                -(IsScreenWidthDominant ? OriginToLargestDimensionBorder : OriginToSmallestDimensionBorder) + pixelCutoff,
+                (IsScreenWidthDominant ? OriginToSmallestDimensionBorder : OriginToLargestDimensionBorder) - pixelCutoff);
+        }
+    }
+    public Vector3 safeZoneSE
+    {
+        get
+        {
+            float pixelCutoff = OriginToSmallestDimensionBorder * screenSafeZone;
+            return new Vector2(
+                (IsScreenWidthDominant ? OriginToLargestDimensionBorder : OriginToSmallestDimensionBorder) - pixelCutoff,
+                -(IsScreenWidthDominant ?  OriginToSmallestDimensionBorder : OriginToLargestDimensionBorder) + pixelCutoff);
+        }
+    }
+    public Vector3 safeZoneSW
+    {
+        get
+        {
+            float pixelCutoff = OriginToSmallestDimensionBorder * screenSafeZone;
+            return new Vector2(
+                -(IsScreenWidthDominant ? OriginToLargestDimensionBorder : OriginToSmallestDimensionBorder) + pixelCutoff,
+                -(IsScreenWidthDominant ? OriginToSmallestDimensionBorder : OriginToLargestDimensionBorder) + pixelCutoff);
+        }
+    }
 
     [Header("References")]
     [SerializeField] private CameraController cameraController;
@@ -244,13 +275,14 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
 
     private void OnValidate()
     {
-        if (bounds.x > 0 || bounds.y > 0 || bounds.z > 0)
-        {
-            UnityEditor.EditorApplication.delayCall += () =>
-            {
-                RecalculateCoordinateSystem();
-            };
-        }
+        RecalculateCoordinateSystem();
+        //if (bounds.x > 0 || bounds.y > 0 || bounds.z > 0)
+        //{
+        //    UnityEditor.EditorApplication.delayCall += () =>
+        //    {
+        //        RecalculateCoordinateSystem();
+        //    };
+        //}
     }
 
     private void OnDestroy()
@@ -354,31 +386,24 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
                 float previousThickness = Draw.Thickness;
                 Draw.Thickness = 5f;
                 LineEndCap previousLineEndCap = Draw.LineEndCaps;
-                Draw.LineEndCaps = LineEndCap.None;
+                Draw.LineEndCaps = LineEndCap.Round;
 
                 Camera mainCam = Camera.main;
-                Color debugColor = Color.green;
-                Color debugColorTransparent = Color.green;
-                debugColorTransparent.a = 0.1f;
+                Color debugColorGreen = Color.green;
+                Color debugColorGreenTransparent = Color.green;
+                debugColorGreenTransparent.a = 0.1f;
+                Color debugColorRed = Color.red;
+                Color debugColorRedTransparent = Color.red;
+                debugColorRedTransparent.a = 0.1f;
                 Vector3 r = mainCam.transform.right;
                 Vector3 u = mainCam.transform.up;
 
                 // Content circumcircle
-                Draw.Ring(Vector3.zero, OriginToContentAreaRadius, debugColor);
+                Draw.Ring(Vector3.zero, OriginToContentAreaRadius, debugColorGreen);
 
                 // Square screen trimmings
                 if (mainCam.pixelWidth != mainCam.pixelHeight || IsSmallestScreenDimensionGreaterThanMaxScalingDimension)
                 {
-                    Vector3 rectCornerPosition;
-                    if (IsScreenWidthDominant)
-                    {
-                        rectCornerPosition = new Vector3(OriginToContentAreaBorder, -OriginToSmallestDimensionBorder, 0);
-                    }
-                    else
-                    {
-                        rectCornerPosition = new Vector3(-OriginToSmallestDimensionBorder, OriginToContentAreaBorder, 0);
-                    }
-
                     float largeTrimLength = OriginToLargestDimensionBorder - OriginToContentAreaBorder;
                     Vector3 borderSE = r * OriginToContentAreaBorder - u * OriginToContentAreaBorder;
                     Vector3 borderNW = -r * OriginToContentAreaBorder + u * OriginToContentAreaBorder;
@@ -387,25 +412,94 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
                     Draw.Rectangle(
                         borderSE,
                         mainCam.transform.forward,
-                        new Vector2(IsScreenWidthDominant ? largeTrimLength : -2 * OriginToContentAreaBorder, IsScreenWidthDominant ? 2 * OriginToContentAreaBorder : -largeTrimLength),
+                        new Vector2(
+                            IsScreenWidthDominant ? largeTrimLength : -2 * OriginToContentAreaBorder, 
+                            IsScreenWidthDominant ? 2 * OriginToContentAreaBorder : -largeTrimLength),
                         RectPivot.Corner,
-                        debugColorTransparent);
+                        debugColorGreenTransparent);
                     Draw.Rectangle(
                         borderNW,
                         mainCam.transform.forward,
-                        new Vector2(IsScreenWidthDominant ? -largeTrimLength : 2 * OriginToContentAreaBorder, IsScreenWidthDominant ? 2 * -OriginToContentAreaBorder : largeTrimLength),
+                        new Vector2(
+                            IsScreenWidthDominant ? -largeTrimLength : 2 * OriginToContentAreaBorder, 
+                            IsScreenWidthDominant ? 2 * -OriginToContentAreaBorder : largeTrimLength),
                         RectPivot.Corner,
-                        debugColorTransparent);
+                        debugColorGreenTransparent);
 
                     // Content area border lines
                     Draw.Line(
                         borderSE,
                         borderSE + (IsScreenWidthDominant ? u : -r) * 2 * OriginToContentAreaBorder,
-                        debugColor);
+                        debugColorGreen);
                     Draw.Line(
                         borderNW,
                         borderNW + (IsScreenWidthDominant ? -u : r) * 2 * OriginToContentAreaBorder,
-                        debugColor);
+                        debugColorGreen);
+
+                    // Safe zone for screen contents
+                    if (screenSafeZone > 0f)
+                    {
+                        // Right side
+                        float safeZoneWidth = screenSafeZone * OriginToSmallestDimensionBorder;
+                        float fullHeight = (IsScreenWidthDominant ? OriginToSmallestDimensionBorder : OriginToLargestDimensionBorder) * 2f;
+                        Draw.Rectangle(
+                            r * safeZoneSE.x - u * (IsScreenWidthDominant ? OriginToSmallestDimensionBorder : OriginToLargestDimensionBorder),
+                            mainCam.transform.forward,
+                            new Vector2(
+                                safeZoneWidth, 
+                                fullHeight),
+                            RectPivot.Corner,
+                            debugColorRedTransparent);
+                        // Left side
+                        Draw.Rectangle(
+                            r * safeZoneSW.x - u * (IsScreenWidthDominant ? OriginToSmallestDimensionBorder : OriginToLargestDimensionBorder),
+                            mainCam.transform.forward,
+                            new Vector2(
+                                -safeZoneWidth, 
+                                fullHeight),
+                            RectPivot.Corner,
+                            debugColorRedTransparent);
+                        // Top side
+                        float widthMinus2SafeZones = 2f * (IsScreenWidthDominant ? OriginToLargestDimensionBorder : OriginToSmallestDimensionBorder) - 2f * safeZoneWidth;
+                        Draw.Rectangle(
+                            r * safeZoneNW.x + u * safeZoneNW.y,
+                            mainCam.transform.forward,
+                            new Vector2(
+                                widthMinus2SafeZones,
+                                safeZoneWidth),
+                            RectPivot.Corner,
+                            debugColorRedTransparent);
+                        // Bottom side
+                        Draw.Rectangle(
+                            r * safeZoneSW.x + u * safeZoneSW.y,
+                            mainCam.transform.forward,
+                            new Vector2(
+                                widthMinus2SafeZones,
+                                -safeZoneWidth),
+                            RectPivot.Corner,
+                            debugColorRedTransparent);
+
+                        // Right side
+                        Draw.Line(
+                            r * safeZoneSE.x + u * safeZoneSE.y,
+                            r * safeZoneNE.x + u * safeZoneNE.y,
+                            debugColorRed);
+                        // Left side
+                        Draw.Line(
+                            r * safeZoneSW.x + u * safeZoneSW.y,
+                            r * safeZoneNW.x + u * safeZoneNW.y,
+                            debugColorRed);
+                        // Top side
+                        Draw.Line(
+                            r * safeZoneNW.x + u * safeZoneNW.y,
+                            r * safeZoneNE.x + u * safeZoneNE.y,
+                            debugColorRed);
+                        // Bottom side
+                        Draw.Line(
+                            r * safeZoneSW.x + u * safeZoneSW.y,
+                            r * safeZoneSE.x + u * safeZoneSE.y,
+                            debugColorRed);
+                    }
 
                     // Filling remaining area that is discounted from scaling
                     if (IsSmallestScreenDimensionGreaterThanMaxScalingDimension)
@@ -421,7 +515,7 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
                                 IsScreenWidthDominant ? -2 * OriginToLargestDimensionBorder : -smallTrimLength, 
                                 IsScreenWidthDominant ? smallTrimLength : 2 * OriginToLargestDimensionBorder),
                             RectPivot.Corner,
-                            debugColorTransparent);
+                            debugColorGreenTransparent);
                         Draw.Rectangle(
                             screenBorderNW,
                             mainCam.transform.forward,
@@ -429,16 +523,16 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
                                 IsScreenWidthDominant ? 2 * OriginToLargestDimensionBorder : smallTrimLength,
                                 IsScreenWidthDominant ? -smallTrimLength : -2 * OriginToLargestDimensionBorder),
                             RectPivot.Corner,
-                            debugColorTransparent);
+                            debugColorGreenTransparent);
 
                         Draw.Line(
                             borderSE,
                             borderSE + (IsScreenWidthDominant ? -r : u) * 2 * OriginToContentAreaBorder,
-                            debugColor);
+                            debugColorGreen);
                         Draw.Line(
                             borderNW,
                             borderNW + (IsScreenWidthDominant ? r : -u) * 2 * OriginToContentAreaBorder,
-                            debugColor);
+                            debugColorGreen);
                     }
                 }
 
@@ -446,11 +540,30 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
                 Draw.Line(
                     u * OriginToContentAreaRadius,
                     u * OriginToContentAreaBorder,
-                    debugColor);
+                    debugColorGreen);
                 Draw.Line(
                     u * OriginToTitleMenuPosition - r * OriginToContentAreaRadius / 10f,
                     u * OriginToTitleMenuPosition + r * OriginToContentAreaRadius / 10f,
-                    debugColor);
+                    debugColorGreen);
+
+                // Side menu location
+                Draw.Line(
+                    r * OriginToContentAreaRadius,
+                    r * OriginToSideMenuLeftPosition,
+                    debugColorGreen);
+                Draw.Line(
+                    r * OriginToSideMenuLeftPosition - u * OriginToContentAreaRadius / 10f,
+                    r * OriginToSideMenuLeftPosition + u * OriginToContentAreaRadius / 10f,
+                    debugColorGreen);
+                float sideMenuWidthWorldSpace = 2f * (GetSideMenuSize().x / currentCameraWidth) * (IsScreenWidthDominant ? cam.aspect * cam.orthographicSize : cam.orthographicSize);
+                Draw.Line(
+                    r * OriginToSideMenuLeftPosition,
+                    r * OriginToSideMenuRightPosition,
+                    debugColorGreen);
+                Draw.Line(
+                    r * OriginToSideMenuRightPosition - u * OriginToContentAreaRadius / 10f,
+                    r * OriginToSideMenuRightPosition + u * OriginToContentAreaRadius / 10f,
+                    debugColorGreen);
 
                 // Resetting draw parameters
                 Draw.Thickness = previousThickness;
@@ -463,9 +576,8 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
     {
         SetGridCorners();
         RecalculateCameraSize();
-        SetTitleMenuPosition();
-        SetSideMenuPosition();
-        // TODO: On play, this throws a null error. No big deal, but annoying. Get rid of it.
+        StartCoroutine(SetTitleMenuPosition_Delayed());
+        StartCoroutine(SetSideMenuPosition_Delayed());
         StartCoroutine(StartRecreatingMarkers());
     }
 
@@ -837,22 +949,38 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
         titleMenu.GetComponent<RectTransform>().localPosition = titleMenuPositionCached;
     }
 
+    private IEnumerator SetTitleMenuPosition_Delayed()
+    {
+        yield return new WaitForEndOfFrame();
+        SetTitleMenuPosition();
+        yield return null;
+    }
+
     private void SetSideMenuPosition()
     {
-        Vector3 newSidePosition = new Vector3(SideMenuOffsetPixels.x, SideMenuOffsetPixels.y, 0f);
-        // Assuming the title is perfectly centered on the x-axis,
-        // checks if overflowing the screen on the right side
-        Rect menuRect = sideMenu.GetComponent<RectTransform>().rect;
-        if (SideMenuOffsetPixels.x + menuRect.width > Camera.main.pixelWidth / 2f)
+        // Side menu is placed vertically centered, horizontally to the right of content area
+        // Allows overlapping content area if the calculation overflows the screen
+        // (0, 0) is at the top-left corner 
+        // Side menu's pivot point is centered
+
+        // Vertically centered, screen height should never subceed side menu's height (544 at the time of writing this comment, may be subject to change)
+        sideMenuPositionCached.y = 0f;
+
+        // If side menu overflows screen, place at screen's edge within specified safe zone.
+        sideMenuPositionCached.x = ((OriginToSideMenuLeftPosition + OriginToSideMenuRightPosition) * 0.5f) / (IsScreenWidthDominant ? OriginToLargestDimensionBorder : OriginToSmallestDimensionBorder) * (currentCameraWidth * 0.5f);
+        if (OriginToSideMenuRightPosition > (IsScreenWidthDominant ? OriginToLargestDimensionBorder : OriginToSmallestDimensionBorder) - screenSafeZone * OriginToSmallestDimensionBorder)
         {
-            newSidePosition.x = Camera.main.pixelWidth / 2f - menuRect.width;
+            sideMenuPositionCached.x = currentCameraWidth * 0.5f - screenSafeZone * SmallestScreenDimension * 0.5f - GetSideMenuSize().x * 0.5f;
         }
-        // Checks if overflowing the screen at the bottom (y is a free variable)
-        if (titleMenuPositionCached.y + SideMenuOffsetPixels.y - menuRect.height < -Camera.main.pixelHeight / 2f)
-        {
-            newSidePosition.y = -titleMenuPositionCached.y - Camera.main.pixelHeight / 2f + menuRect.height;
-        }
-        sideMenu.GetComponent<RectTransform>().localPosition = newSidePosition;
+
+        sideMenu.GetComponent<RectTransform>().localPosition = sideMenuPositionCached;
+    }
+
+    private IEnumerator SetSideMenuPosition_Delayed()
+    {
+        yield return new WaitForEndOfFrame();
+        SetSideMenuPosition();
+        yield return null;
     }
 
     public void RecalculateCameraSize()

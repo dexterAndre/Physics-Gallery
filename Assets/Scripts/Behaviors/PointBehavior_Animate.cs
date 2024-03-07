@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /*
@@ -7,14 +5,16 @@ using UnityEngine;
 */
 public abstract class PointBehavior_Animate : MonoBehaviour
 {
-    [SerializeField] protected ManagerPointSet pointManager;
+    protected ManagerPointSet pointManager;
+    public ManagerPointSet ManagerPointSet { set { pointManager = value; } }
 
 
-    protected void Awake()
+    protected virtual void Awake()
     {
         if (pointManager == null)
         {
-            pointManager = transform.parent.GetComponent<ManagerPointSet>();
+            // TODO: Improve safety
+            pointManager = GameObject.Find("Points Parent").GetComponent<ManagerPointSet>();
             if (pointManager == null)
             {
                 Debug.LogError("ManagerPointSet could not be found. Disabling point animation behavior.");
@@ -24,5 +24,6 @@ public abstract class PointBehavior_Animate : MonoBehaviour
         }
     }
 
+    public abstract Vector2 UpdateBehavior(Vector2 inVector);
     public abstract Vector3 UpdateBehavior(Vector3 inVector);
 }

@@ -15,6 +15,8 @@ public class PointBehavior_AnimationStrangeAttractor : PointBehavior_Animate
     // https://chaoticatmospheres.com/mathrules-strange-attractors
     // https://strange-attractors.org/#/gallery
 
+    [SerializeField] private float attractorSpeed = 0.1f;
+    public float AttractorSpeed { get { return attractorSpeed; } set { attractorSpeed = value; } }
     [SerializeField] private StrangeAttractorType type = StrangeAttractorType.Lorenz;
     public void SetType(StrangeAttractorType inType)
     {
@@ -39,17 +41,24 @@ public class PointBehavior_AnimationStrangeAttractor : PointBehavior_Animate
             }
         }
     }
-    [SerializeField] private float attractorSpeed = 0.1f;
-    public float AttractorSpeed { get { return attractorSpeed; } set { attractorSpeed = value; } }
     private List<float> attractorParameters;
-    public delegate Vector3 Vector3Delegate_ZeroParameters(ref Vector3 inVector);
-    public static event Vector3Delegate_ZeroParameters AttractorFunction;
+    public delegate Vector3 Vector3Delegate_RefVector3(ref Vector3 inVector);
+    public static event Vector3Delegate_RefVector3 AttractorFunction;
 
 
 
-    protected void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         SetType(StrangeAttractorType.Lorenz);
+    }
+
+    public override Vector2 UpdateBehavior(Vector2 inVector)
+    {
+        // TODO: Handle this
+        return inVector * 0.01f;
+        //throw new System.NotImplementedException();
     }
 
     public override Vector3 UpdateBehavior(Vector3 inVector)
@@ -71,14 +80,17 @@ public class PointBehavior_AnimationStrangeAttractor : PointBehavior_Animate
 
     private Vector3 Lorenz(ref Vector3 inVector)
     {
-        // TODO: Find a way to scale attractor down
+        // Domain is approx. 40 on greatest axis (double it since the base is [-0.5, 0.5])
+        float scale = 80f;
         SetParameters(10f, 28f, 8f / 3f);
 
+        Vector3 scaledPosition = scale * inVector;
         return new Vector3(
-            attractorParameters[0] * (inVector.y - inVector.x),
-            inVector.x * (attractorParameters[1] - inVector.z),
-            inVector.x * inVector.y - attractorParameters[2] * inVector.z);
+            attractorParameters[0] * scaledPosition.y - scaledPosition.x,
+            scaledPosition.x * (attractorParameters[1] - scaledPosition.z),
+            scaledPosition.x * scaledPosition.y - attractorParameters[2] * scaledPosition.z) / scale;
     }
+
     private Vector3 Rossler(ref Vector3 inVector)
     {
         return new Vector3(

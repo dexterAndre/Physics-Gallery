@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GUIOption_IncrementalSlider2 : GUIOption2, IColorable
+public class GUIOption_IncrementalSlider2 : GUIOption2
 {
     [SerializeField] private GUIController_IncrementalSlider incrementalSlider;
     public GUIController_IncrementalSlider IncrementalSlider { get { return incrementalSlider; } }
@@ -23,8 +23,9 @@ public class GUIOption_IncrementalSlider2 : GUIOption2, IColorable
         incrementalSlider.InputField.interactable = state;
     }
 
-    public void ApplyColorPalette(ColorPalette palette)
+    public override void ApplyColorPalette(ColorPalette palette)
     {
+        base.ApplyColorPalette(palette);
         IColorable.ApplyColorPalette_IncrementalSlider(IncrementalSlider, palette);
     }
 }

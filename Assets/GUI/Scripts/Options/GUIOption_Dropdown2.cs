@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEditor;
 
-public class GUIOption_Dropdown2 : GUIOption2, IColorable
+public class GUIOption_Dropdown2 : GUIOption2
 {
     [SerializeField] private TMP_Dropdown dropdown;
     public TMP_Dropdown Dropdown { get { return dropdown; } }
@@ -45,7 +45,13 @@ public class GUIOption_Dropdown2 : GUIOption2, IColorable
         EditorUtility.SetDirty(dropdown);
     }
 
-    public virtual void ApplyColorPalette(ColorPalette palette)
+    public override void ApplyColorPalette(ColorPalette palette)
+    {
+        base.ApplyColorPalette(palette);
+        ApplyDropdownPalette(palette);
+    }
+
+    public virtual void ApplyDropdownPalette(ColorPalette palette)
     {
         IColorable.ApplyColorPalette_Dropdown(Dropdown, palette);
     }

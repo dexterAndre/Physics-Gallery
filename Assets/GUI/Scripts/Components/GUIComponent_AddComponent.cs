@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GUIComponent_AddComponent : GUIComponent2, IColorable
+public class GUIComponent_AddComponent : GUIComponent2
 {
     [SerializeField] private Image separatorBar;
     [SerializeField] private GUIOption_Dropdown2 controllerAddComponent;
@@ -31,8 +31,10 @@ public class GUIComponent_AddComponent : GUIComponent2, IColorable
         }
     }
 
-    public void ApplyColorPalette(ColorPalette palette)
+    public override void ApplyColorPalette(ColorPalette palette)
     {
+        base.ApplyColorPalette(palette);
+
         Image strokeImage = controllerAddComponent.transform.GetChild(0).GetComponent<Image>();
         Image fillImage = strokeImage.transform.GetChild(0).GetComponent<Image>();
         TMP_Text label = fillImage.transform.GetChild(0).GetComponent<TMP_Text>();

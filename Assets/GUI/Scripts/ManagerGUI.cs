@@ -19,7 +19,8 @@ public struct ColorPalette
     public Color colorClickableDisabled;
     public Color colorFont;
     public Sprite imageCheckmark;
-    public Sprite imageCollapsible;
+    public Sprite imageCollapsibleOn;
+    public Sprite imageCollapsibleOff;
     public Sprite imageDropdown;
     public Sprite imageDecrement;
     public Sprite imageIncrement;
@@ -41,7 +42,8 @@ public struct ColorPalette
         palette.colorClickableDisabled = Random.ColorHSV();
         palette.colorFont = Random.ColorHSV();
         palette.imageCheckmark = paletteSpriteReference.imageCheckmark;
-        palette.imageCollapsible = paletteSpriteReference.imageCollapsible;
+        palette.imageCollapsibleOn = paletteSpriteReference.imageCollapsibleOn;
+        palette.imageCollapsibleOff = paletteSpriteReference.imageCollapsibleOff;
         palette.imageDropdown = paletteSpriteReference.imageDropdown;
         palette.imageDecrement = paletteSpriteReference.imageDecrement;
         palette.imageIncrement = paletteSpriteReference.imageIncrement;

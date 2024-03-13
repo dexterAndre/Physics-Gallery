@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GUIOption_Buttons2 : GUIOption2, IColorable
+public class GUIOption_Buttons2 : GUIOption2
 {
     [SerializeField] private List<Button> buttons;
     public List<Button> Buttons { get { return buttons; } }
@@ -15,8 +15,9 @@ public class GUIOption_Buttons2 : GUIOption2, IColorable
         }
     }
 
-    public void ApplyColorPalette(ColorPalette palette)
+    public override void ApplyColorPalette(ColorPalette palette)
     {
+        base.ApplyColorPalette(palette);
         foreach (Button button in buttons)
         {
             IColorable.ApplyColorPalette_Button(button, palette);

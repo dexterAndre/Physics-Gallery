@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GUIComponent_Generate2 : GUIComponent2, IColorable
+public class GUIComponent_Generate2 : GUIComponent2
 {
     [SerializeField] private GUIOption_IncrementalSlider2 controllerPointCount;
     [SerializeField] private GUIOption_Dropdown2 controllerMethod;
@@ -30,8 +30,9 @@ public class GUIComponent_Generate2 : GUIComponent2, IColorable
         controllerButtons_ClearGenerate.SetInteractable(state);
     }
 
-    public void ApplyColorPalette(ColorPalette palette)
+    public override void ApplyColorPalette(ColorPalette palette)
     {
+        base.ApplyColorPalette(palette);
         controllerPointCount.ApplyColorPalette(palette);
         controllerMethod.ApplyColorPalette(palette);
         controllerButtons_ClearGenerate.ApplyColorPalette(palette);

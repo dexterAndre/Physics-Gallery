@@ -26,4 +26,10 @@ public class GUIComponent_AnimateStrangeAttractor2 : GUIComponent2
         controllerSpeed.SetInteractable(state);
         controllerType.SetInteractable(state);
     }
+
+    public override void ApplyColorPalette(ColorPalette palette)
+    {
+        base.ApplyColorPalette(palette);
+        // TODO: Implement
+    }
 }

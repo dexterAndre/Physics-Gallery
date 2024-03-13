@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5314327916857081109}
-  - component: {fileID: 563345404452999634}
+  - component: {fileID: 470314792633994689}
   m_Layer: 5
   m_Name: opn_flipswitch
   m_TagString: Untagged
@@ -38,7 +38,7 @@ RectTransform:
   m_AnchoredPosition: {x: 4, y: -2}
   m_SizeDelta: {x: 356, y: 20}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &563345404452999634
+--- !u!114 &470314792633994689
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -47,9 +47,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 6894996382447230388}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76deab83262ff0e438106d86c18ff9ba, type: 3}
+  m_Script: {fileID: 11500000, guid: cc53aaa51351264478bb8764876f8fe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  descriptor: {fileID: 5542163404857414402}
   toggle: {fileID: 8994610771625642790}
 --- !u!1001 &3288185333272627351
 PrefabInstance:
@@ -346,3 +347,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4521881542829161943, guid: c14f10fef8c26d148bef9c04cebca499, type: 3}
   m_PrefabInstance: {fileID: 3446189798214677803}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5542163404857414402 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7150285864274961961, guid: c14f10fef8c26d148bef9c04cebca499, type: 3}
+  m_PrefabInstance: {fileID: 3446189798214677803}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -48,7 +48,7 @@ public interface IColorable
             ApplyColorPalette_Label(label, palette.colorFont);
         }
     }
-    protected static void ApplyColorPalette_Button(Button button, ColorPalette palette)
+    protected static void ApplyColorPalette_Button(Button button, ColorPalette palette, Sprite glyph = null)
     {
         /**
          * Assuming following hierarchical layout:
@@ -68,6 +68,7 @@ public interface IColorable
         if (glyphImage != null)
         {
             ApplyColorPalette_Image(glyphImage, palette.colorFocusGlyph);
+            ApplyColorPalette_Sprite(glyphImage, glyph);
         }
         else if (buttonLabel != null)
         {
@@ -176,9 +177,9 @@ public interface IColorable
         TMP_Dropdown dropdown = dropdownGallery.transform.GetChild(1).GetComponent<TMP_Dropdown>();
         Button buttonIncrement = dropdownGallery.transform.GetChild(2).GetComponent<Button>();
 
-        ApplyColorPalette_Button(buttonDecrement, palette);
+        ApplyColorPalette_Button(buttonDecrement, palette, palette.imageDecrement);
         ApplyColorPalette_Dropdown(dropdown, palette);
-        ApplyColorPalette_Button(buttonIncrement, palette);
+        ApplyColorPalette_Button(buttonIncrement, palette, palette.imageIncrement);
     }
     protected static void ApplyColorPalette_IncrementalSlider(GUIController_IncrementalSlider incrementalSlider, ColorPalette palette)
     {
@@ -202,10 +203,10 @@ public interface IColorable
         TMP_Text inputText = sliderGroup.GetChild(1).GetChild(0).GetChild(0).GetComponent<TMP_Text>();
         Button buttonIncrement = incrementalSlider.transform.GetChild(2).GetComponent<Button>();
 
-        ApplyColorPalette_Button(buttonDecrement, palette);
+        ApplyColorPalette_Button(buttonDecrement, palette, palette.imageDecrement);
         ApplyColorPalette_Image(sliderBackground, palette.colorForegroundFill);
         ApplyColorPalette_Image(sliderFill, palette.colorBackgroundPanel);
         ApplyColorPalette_Label(inputText, palette.colorFont);
-        ApplyColorPalette_Button(buttonIncrement, palette);
+        ApplyColorPalette_Button(buttonIncrement, palette, palette.imageIncrement);
     }
 }

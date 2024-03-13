@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GUIOption_Toggle2 : GUIOption2, IColorable
+public class GUIOption_Toggle2 : GUIOption2
 {
     [SerializeField] protected Toggle toggle;
     public Toggle Toggle { get { return toggle; } }
@@ -22,7 +22,13 @@ public class GUIOption_Toggle2 : GUIOption2, IColorable
         toggle.interactable = state;
     }
 
-    public virtual void ApplyColorPalette(ColorPalette palette)
+    public override void ApplyColorPalette(ColorPalette palette)
+    {
+        base.ApplyColorPalette(palette);
+        ApplyTogglePalette(palette);
+    }
+
+    public virtual void ApplyTogglePalette(ColorPalette palette)
     {
         IColorable.ApplyColorPalette_Toggle(toggle, palette);
     }

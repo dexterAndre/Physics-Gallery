@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEditor;
 using TMPro;
 
-public class GUIOption_DropdownGallery2 : GUIOption_Dropdown2, IColorable
+public class GUIOption_DropdownGallery2 : GUIOption_Dropdown2
 {
     [SerializeField] private GUIController_DropdownGallery dropdownGallery;
 
@@ -37,6 +37,11 @@ public class GUIOption_DropdownGallery2 : GUIOption_Dropdown2, IColorable
     }
 
     public override void ApplyColorPalette(ColorPalette palette)
+    {
+        base.ApplyColorPalette(palette);
+    }
+
+    public override void ApplyDropdownPalette(ColorPalette palette)
     {
         IColorable.ApplyColorPalette_DropdownGallery(dropdownGallery, palette);
     }

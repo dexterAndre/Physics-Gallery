@@ -268,7 +268,7 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
     [SerializeField] private PrefabType pointType = PrefabType.Circle;
     private PrefabType previousPointType = PrefabType.Circle;
     [SerializeField] private GUIOption_IncrementalSlider2 guiPointCount;
-    [SerializeField] private TMP_Dropdown guiGenerationMethod;
+    [SerializeField] private GUIOption_DropdownGallery2 guiGenerationMethod;
     [SerializeField] private CoordinateSystem guiCoordinateSystem;
     [SerializeField] private GUIComponent_Settings2 settings;
 

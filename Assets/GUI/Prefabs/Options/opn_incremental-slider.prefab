@@ -50,6 +50,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd8f4d3b4b47d514a807261045266a7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  descriptor: {fileID: 5712637456657055513}
   incrementalSlider: {fileID: 7154668803368884300}
 --- !u!1001 &1073484343404900362
 PrefabInstance:
@@ -286,3 +287,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4521881542829161943, guid: c14f10fef8c26d148bef9c04cebca499, type: 3}
   m_PrefabInstance: {fileID: 3205919049971751216}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5712637456657055513 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7150285864274961961, guid: c14f10fef8c26d148bef9c04cebca499, type: 3}
+  m_PrefabInstance: {fileID: 3205919049971751216}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

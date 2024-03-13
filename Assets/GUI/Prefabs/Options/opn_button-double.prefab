@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1647344540463715795}
+  - component: {fileID: 464683347099116663}
   m_Layer: 5
   m_Name: opn_button-double
   m_TagString: Untagged
@@ -37,6 +38,22 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 20}
   m_Pivot: {x: 0, y: 1}
+--- !u!114 &464683347099116663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3138410000065727268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 993ae9a9b373d384c880778c5d6f6aff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  descriptor: {fileID: 0}
+  buttons:
+  - {fileID: 2143097590269750790}
+  - {fileID: 5854255752092451579}
 --- !u!1001 &2592994960540421504
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -127,13 +144,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1752686704126221939, guid: 276f70b20e8b7f54585d19daa124c2ea, type: 3}
       propertyPath: m_Name
-      value: btn_stroke
+      value: btn_left
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 276f70b20e8b7f54585d19daa124c2ea, type: 3}
+--- !u!114 &2143097590269750790 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4486118264306787206, guid: 276f70b20e8b7f54585d19daa124c2ea, type: 3}
+  m_PrefabInstance: {fileID: 2592994960540421504}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &2445794444587174433 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 147807603141756833, guid: 276f70b20e8b7f54585d19daa124c2ea, type: 3}
@@ -229,13 +257,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1752686704126221939, guid: 276f70b20e8b7f54585d19daa124c2ea, type: 3}
       propertyPath: m_Name
-      value: btn_stroke
+      value: btn_right
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 276f70b20e8b7f54585d19daa124c2ea, type: 3}
+--- !u!114 &5854255752092451579 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4486118264306787206, guid: 276f70b20e8b7f54585d19daa124c2ea, type: 3}
+  m_PrefabInstance: {fileID: 8034309980778127741}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &7886511476536125148 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 147807603141756833, guid: 276f70b20e8b7f54585d19daa124c2ea, type: 3}

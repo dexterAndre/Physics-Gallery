@@ -1,36 +1,85 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
+// TODO: CONTINUE: Component calls ApplyColor on GUIOption_Header, each header has a GUIOption_Header component
+
+[ExecuteInEditMode]
 public class GUIOption_Header : GUIOption2, IColorable
 {
     [SerializeField] private Image background;
-    [SerializeField] private Image dropdownGlyph;
+    [SerializeField] private GUIController_Toggle collapsibleToggle;
+    [SerializeField] private Image dropdownGlyphOn;
+    [SerializeField] private Image dropdownGlyphOff;
     [SerializeField] private Toggle enableToggle;
-    [SerializeField] private TMP_Text descriptor;
     [SerializeField] private Button buttonDelete;
     [SerializeField] private Button buttonMoveDown;
     [SerializeField] private Button buttonMoveUp;
 
+
+
+    private void OnEnable()
+    {
+        FindReferences();
+    }
+
     private void FindReferences()
     {
-        if (background == null)
+        Transform identifierGroup = transform.GetChild(0);
+        if (identifierGroup != null)
         {
-            // find, then if null throw error
+            if (background == null)
+            {
+                background = GetComponent<Image>();
+            }
+            if (collapsibleToggle == null)
+            {
+                collapsibleToggle = identifierGroup.GetChild(0).GetComponent<GUIController_Toggle>();
+            }
+            if (collapsibleToggle != null)
+            {
+                if (dropdownGlyphOn == null)
+                {
+                    dropdownGlyphOn = collapsibleToggle.transform.GetChild(0).GetComponent<Image>();
+                }
+                if (dropdownGlyphOff == null)
+                {
+                    dropdownGlyphOff = collapsibleToggle.transform.GetChild(1).GetComponent<Image>();
+                }
+            }
+            if (enableToggle == null)
+            {
+                enableToggle = identifierGroup.GetChild(1).GetComponent<Toggle>();
+            }
+            if (descriptor == null)
+            {
+                descriptor = identifierGroup.GetChild(2).GetComponent<TMP_Text>();
+            }
+        }
+
+        if (transform.childCount <= 1)
+            return;
+
+        Transform organizationGroup = transform.GetChild(1);
+        if (organizationGroup != null)
+        {
+            if (buttonDelete == null)
+            {
+                buttonDelete = organizationGroup.GetChild(0).GetComponent<Button>();
+            }
+            if (buttonMoveDown == null)
+            {
+                buttonDelete = organizationGroup.GetChild(2).GetComponent<Button>();
+            }
+            if (buttonMoveUp == null)
+            {
+                buttonDelete = organizationGroup.GetChild(3).GetComponent<Button>();
+            }
         }
     }
 
-    public virtual void ApplyColorPalette(ColorPalette palette)
+    public override void ApplyColorPalette(ColorPalette palette)
     {
-        // 0. Background
-        // 1. Collapsible caret
-        // 2. Enable button
-        // 3. Label
-        // 4. Delete button
-        // 5. Move down button
-        // 6. Move up button
-
         /**
          * Assuming following hierarchical layout:
          * -> { Header }
@@ -45,7 +94,45 @@ public class GUIOption_Header : GUIOption2, IColorable
          * -----> { Move up button }
          */
 
-        // CONTINUE
-        //dropdownGlyph.sprite = palette.dro
+        base.ApplyColorPalette(palette);
+        if (background != null)
+        {
+            IColorable.ApplyColorPalette_Image(background, palette.colorBackgroundPanel);
+        }
+        if (dropdownGlyphOn != null)
+        {
+            IColorable.ApplyColorPalette_Sprite(dropdownGlyphOn, palette.imageCollapsibleOn);
+            IColorable.ApplyColorPalette_Image(dropdownGlyphOn, palette.colorFocusGlyph);
+        }
+        if (dropdownGlyphOff != null)
+        {
+            IColorable.ApplyColorPalette_Sprite(dropdownGlyphOff, palette.imageCollapsibleOff);
+            IColorable.ApplyColorPalette_Image(dropdownGlyphOff, palette.colorFocusGlyph);
+        }
+        if (enableToggle != null)
+        {
+            IColorable.ApplyColorPalette_Toggle(enableToggle, palette);
+        }
+        if (descriptor != null)
+        {
+            IColorable.ApplyColorPalette_Label(descriptor, palette.colorFont);
+        }
+        if (buttonDelete != null)
+        {
+            IColorable.ApplyColorPalette_Button(buttonDelete, palette);
+        }
+        if (buttonMoveDown != null)
+        {
+            IColorable.ApplyColorPalette_Button(buttonMoveDown, palette);
+        }
+        if (buttonMoveUp != null)
+        {
+            IColorable.ApplyColorPalette_Button(buttonMoveUp, palette);
+        }
+    }
+
+    public override void SetInteractable(bool state)
+    {
+        throw new System.NotImplementedException();
     }
 }

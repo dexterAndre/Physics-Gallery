@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class GUIComponent_Settings2 : GUIComponent2, IColorable
+public class GUIComponent_Settings2 : GUIComponent2
 {
-    [SerializeField] private GUIOption_Toggle2 controllerDimension;
+    [SerializeField] private GUIOption_ToggleFlip2 controllerDimension;
     [SerializeField] private GUIOption_Toggle2 controllerShowBounds;
     [SerializeField] private GUIOption_Dropdown2 controllerBounds;
     [SerializeField] private GUIOption_Dropdown2 controllerEdgeResponse;
@@ -35,8 +35,9 @@ public class GUIComponent_Settings2 : GUIComponent2, IColorable
         controllerEdgeResponse.SetInteractable(state);
     }
 
-    public void ApplyColorPalette(ColorPalette palette)
+    public override void ApplyColorPalette(ColorPalette palette)
     {
+        base.ApplyColorPalette(palette);
         controllerDimension.ApplyColorPalette(palette);
         controllerShowBounds.ApplyColorPalette(palette);
         controllerBounds.ApplyColorPalette(palette);

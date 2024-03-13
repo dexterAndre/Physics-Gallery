@@ -30,4 +30,10 @@ public class GUIComponent_AnimateJitter2 : GUIComponent2
         controllerNormalize.SetInteractable(state);
         controllerRelativeSpeed.SetInteractable(state);
     }
+
+    public override void ApplyColorPalette(ColorPalette palette)
+    {
+        base.ApplyColorPalette(palette);
+        // TODO: Implement
+    }
 }

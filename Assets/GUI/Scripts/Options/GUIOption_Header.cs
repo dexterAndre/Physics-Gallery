@@ -75,6 +75,19 @@ public class GUIOption_Header : GUIOption2, IColorable
             {
                 buttonDelete = organizationGroup.GetChild(3).GetComponent<Button>();
             }
+
+            if (buttonDelete != null)
+            {
+                buttonDelete.onClick.AddListener(DeleteComponent);
+            }
+            if (buttonMoveDown != null)
+            {
+                buttonMoveDown.onClick.AddListener(MoveComponentDown);
+            }
+            if (buttonMoveUp != null)
+            {
+                buttonMoveUp.onClick.AddListener(MoveComponentUp);
+            }
         }
     }
 
@@ -134,5 +147,26 @@ public class GUIOption_Header : GUIOption2, IColorable
     public override void SetInteractable(bool state)
     {
         throw new System.NotImplementedException();
+    }
+
+    private void DeleteComponent()
+    {
+        ManagerPointSet pointSetManager = transform.parent.parent.GetComponent<ManagerPointSet>();
+        if (pointSetManager == null)
+        {
+            Debug.LogWarning("Could not find ManagerPointSet. Cannot delete component.");
+            return;
+        }
+
+        PointBehavior behavior = transform.parent.GetComponent<PointBehavior>();
+        pointSetManager.RemoveBehavior(behavior);
+    }
+
+    private void MoveComponentDown()
+    {
+    }
+
+    private void MoveComponentUp()
+    {
     }
 }

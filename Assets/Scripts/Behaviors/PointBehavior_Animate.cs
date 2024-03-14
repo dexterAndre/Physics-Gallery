@@ -3,12 +3,8 @@ using UnityEngine;
 /*
     TODO:
 */
-public abstract class PointBehavior_Animate : MonoBehaviour
+public abstract class PointBehavior_Animate : PointBehavior
 {
-    protected ManagerPointSet pointManager;
-    public ManagerPointSet ManagerPointSet { set { pointManager = value; } }
-
-
     protected virtual void Awake()
     {
         if (pointManager == null)

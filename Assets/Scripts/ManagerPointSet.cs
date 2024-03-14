@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Shapes;
+using JetBrains.Annotations;
 
 
 
@@ -166,41 +167,37 @@ public enum EdgeResponse
     Respawn
 }
 [System.Serializable]
-public enum GenerationMethod
+public enum BehaviorMethod
 {
-    Random,
-    PoissonDisc,
-    LatticeRectangular,
-    LatticeHexagonal,
-    DoubleSlitDistribution,
-    GaussianDistribution,
-    Import,
+    // Generation
+    Generate_Random,
+    //Generate_PoissonDisc,
+    //Generate_LatticeRectangular,
+    //Generate_LatticeHexagonal,
+    //Generate_DoubleSlitDistribution,
+    //Generate_GaussianDistribution,
+    //Generate_Import,
+    // Overlay
+    //Overlay_Web,
+    //Overlay_Triangulation,
+    //Overlay_ConvexHull,
+    //Overlay_Voronoi,
+    //Overlay_Duals,
+    //Overlay_SpatialPartitioning,
+    //Overlay_CenterOfMass,
+    // Selection
+    //Selector_ClosestToRay,
+    //Selector_kMeansClustering,
+    //Selector_PointSetRegistration,
+    // Animation
+    Animate_Jitter,
+    //Animate_Flocking,
+    //Animate_VectorField,
+    //Animate_WindSimulation,
+    Animate_StrangeAttractor,
+    //Animate_LotkaVolterra,
+    //Animate_SpringSystem,
 };
-[System.Serializable]
-public enum OverlayMethod
-{
-    Web,
-    Triangulation,
-    ConvexHull,
-    VoronoiDiagram,
-    Duals,
-    SpatialPartitioning,
-    CenterOfMass,
-    ClosestPointToRay,
-    kMeansClustering,
-    PointSetRegistration,
-}
-[System.Serializable]
-public enum AnimationMethod
-{
-    Jitter,
-    Flocking,
-    VectorField,
-    WindSimulation,
-    StrangeAttractor,
-    LotkaVolterraEquations,
-    SpringSystem,
-}
 #endregion // Structs and enums
 
 public class ManagerPointSet : ImmediateModeShapeDrawer
@@ -314,8 +311,8 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
 
     // Animation components
     [SerializeField] private List<PointBehavior_Animate> animationBehaviors = new List<PointBehavior_Animate>();
-    [SerializeField] private List<PointBehavior_Animate> overlayBehaviors = new List<PointBehavior_Animate>();
-    [SerializeField] private List<PointBehavior_Animate> selectionBehaviors = new List<PointBehavior_Animate>();
+    //[SerializeField] private List<PointBehavior_Animate> overlayBehaviors = new List<PointBehavior_Animate>();
+    //[SerializeField] private List<PointBehavior_Animate> selectionBehaviors = new List<PointBehavior_Animate>();
 
 
 
@@ -339,7 +336,7 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
             PointBehavior_Animate behavior = child.GetComponent<PointBehavior_Animate>();
             if (behavior != null)
             {
-                overlayBehaviors.Add(behavior);
+                //overlayBehaviors.Add(behavior);
             }
         }
 
@@ -466,7 +463,7 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
 
     #region Behavior functionality
     #region Components
-    public void AddBehavior(PointBehavior_Animate behavior)
+    public void AddBehavior(PointBehavior behavior)
     {
         // TODO: Differentiate between animation, overlay, and selection
         PointBehavior_Animate animationBehavior = behavior as PointBehavior_Animate;
@@ -474,7 +471,7 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
         //PointBehavior_Animate selectionBehavior = behavior as PointBehavior_Animate;
         if (animationBehavior != null)      // Animation component
         {
-            animationBehaviors.Add(behavior);
+            animationBehaviors.Add(animationBehavior);
         }
         //else if (overlayBehavior != null)   // Overlay component
         //{
@@ -485,24 +482,24 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
         //    selectionBehaviors.Add(behavior);
         //}
     }
-    public void RemoveBehavior(PointBehavior_Animate behavior)
+    public void RemoveBehavior(PointBehavior behavior)
     {
         // TODO: Differentiate between animation, overlay, and selection
         PointBehavior_Animate animationBehavior = behavior as PointBehavior_Animate;
-        PointBehavior_Animate overlayBehavior = behavior as PointBehavior_Animate;
-        PointBehavior_Animate selectionBehavior = behavior as PointBehavior_Animate;
+        //PointBehavior_Animate overlayBehavior = behavior as PointBehavior_Animate;
+        //PointBehavior_Animate selectionBehavior = behavior as PointBehavior_Animate;
         if (animationBehavior != null)      // Animation component
         {
-            animationBehaviors.Remove(behavior);
+            animationBehaviors.Remove(animationBehavior);
         }
-        else if (overlayBehavior != null)   // Overlay component
-        {
-            overlayBehaviors.Remove(behavior);
-        }
-        else if (selectionBehavior != null) // Selection component
-        {
-            selectionBehaviors.Remove(behavior);
-        }
+        //else if (overlayBehavior != null)   // Overlay component
+        //{
+        //    overlayBehaviors.Remove(behavior);
+        //}
+        //else if (selectionBehavior != null) // Selection component
+        //{
+        //    selectionBehaviors.Remove(behavior);
+        //}
     }
     #endregion // Components
     #region Generation

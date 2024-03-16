@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GUIComponent_AddComponent : GUIComponent2
+public class GUIComponent_AddComponent : GUIComponent2, IPopulatable
 {
     [SerializeField] private Image separatorBar;
     [SerializeField] private GUIOption_Dropdown2 controllerAddComponent;
@@ -11,9 +11,9 @@ public class GUIComponent_AddComponent : GUIComponent2
     {
         // TODO: Temp
         if (index == 1)
-            managerGUI.AddComponent(AnimationMethod.Jitter);
+            managerGUI.AddComponent(BehaviorMethod.Animate_Jitter);
         else if (index == 2)
-            managerGUI.AddComponent(AnimationMethod.StrangeAttractor);
+            managerGUI.AddComponent(BehaviorMethod.Animate_StrangeAttractor);
         controllerAddComponent.Dropdown.SetValueWithoutNotify(0);
     }
 
@@ -42,4 +42,10 @@ public class GUIComponent_AddComponent : GUIComponent2
         controllerAddComponent.ApplyColorPalette(palette);
         IColorable.ApplyColorPalette_StrokeFillGlyphLabel(palette, strokeImage, fillImage, null, label);
     }
+
+    public void Populate()
+    {
+        IPopulatable.Populate_Dropdown<BehaviorMethod>(controllerAddComponent.Dropdown, managerGUI.NameList_Components);
+    }
+
 }

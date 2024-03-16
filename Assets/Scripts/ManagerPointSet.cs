@@ -1,17 +1,15 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using Shapes;
-using JetBrains.Annotations;
 
 
 
 /*
     TODO:
-    [ ] Delete old files
+    [X] Delete old files
     [ ] Rename new files
-    [ ] Rearchitect adding of components and synchronization of them, also how references are gotten at construction
+    [X] Rearchitect adding of components and synchronization of them, also how references are gotten at construction
     [ ] Rearrange buttons
     [ ] Disable edge organization buttons, as they won't do anything anyway
     [ ] Add a few more options and functional adding / removing of components
@@ -150,21 +148,21 @@ public enum BoundsType
 {
     // 2D
     Square,
-    Circle,
-    Sector,
+    //Circle,
+    //Sector,
 
     // 3D
     Cube,
-    Sphere,
-    Cone
+    //Sphere,
+    //Cone
 }
 [System.Serializable]
 public enum EdgeResponse
 {
     Overflow,
     Wrap,
-    Kill,
-    Respawn
+    //Kill,
+    //Respawn
 }
 [System.Serializable]
 public enum BehaviorMethod
@@ -850,14 +848,14 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
                 WrapPoint3D_MasterFunction = MovePoint3D_WrappedRectangular;
                 break;
             }
-            case EdgeResponse.Kill:
-            {
-                break;
-            }
-            case EdgeResponse.Respawn:
-            {
-                break;
-            }
+            //case EdgeResponse.Kill:
+            //{
+            //    break;
+            //}
+            //case EdgeResponse.Respawn:
+            //{
+            //    break;
+            //}
             default:
             {
                 break;

@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -98,9 +98,15 @@ public class ManagerGUI : MonoBehaviour, IColorable
     public ColorPalette PaletteRandom { get { return colorPalette; } }
 
     [Header("Component Management")]
+    // TODO: Do we need this anymore?
     [SerializeField] private uint lockedComponents = 2;
+    // TODO: Do we need this anymore?
     public uint LockedComponents { get { return lockedComponents; } }
-    [SerializeField] private Transform componentGUIParent;
+    [SerializeField] private GUIComponent_Settings2 componentSettings;
+    [SerializeField] private GUIComponent_Generate2 componentGenerate;
+    // TODO: Repurpose this? Check all references
+    [SerializeField] private Transform componentInteractiveParent;
+    [SerializeField] private GUIComponent_AddComponent componentAddComponent;
     [SerializeField] private ManagerPointSet managerPointSet;
 
     [Header("Components")]
@@ -109,38 +115,32 @@ public class ManagerGUI : MonoBehaviour, IColorable
     [SerializeField] private PrefabCollection_Animation animations;
 
     [Header("Dropdowns")]
-    [SerializeField] private GUIOption_DropdownGallery2 dropdownPresets;
+    //[SerializeField] private GUIOption_DropdownGallery2 dropdownPresets;
     [SerializeField] private GUIOption_Dropdown2 dropdownBounds;
     [SerializeField] private GUIOption_Dropdown2 dropdownEdgeResponse;
     [SerializeField] private GUIOption_Dropdown2 dropdownGenerateMethod;
 
     // Dropdown labels
-    private Dictionary<BoundsType, string> BoundsTypeNames2D = new Dictionary<BoundsType, string>()
+    private Dictionary<BoundsType, string> nameList_Bounds = new Dictionary<BoundsType, string>()
     {
         { BoundsType.Square, "Square" },
         //{ BoundsType.Circle, "Circle" },
         //{ BoundsType.Sector, "Sector" },
-    };
-    private Dictionary<BoundsType, string> BoundsTypeNames3D = new Dictionary<BoundsType, string>()
-    {
-        { BoundsType.Cube, "Cube" },
+        //{ BoundsType.Cube, "Cube" },
         //{ BoundsType.Sphere, "Sphere" },
         //{ BoundsType.Cone, "Cone" },
     };
-    private Dictionary<EdgeResponse, string> EdgeResponseNames = new Dictionary<EdgeResponse, string>()
+    public Dictionary<BoundsType, string> NameList_Bounds { get { return nameList_Bounds; } }
+    private Dictionary<EdgeResponse, string> nameList_EdgeResponse = new Dictionary<EdgeResponse, string>()
     {
-        { EdgeResponse.Overflow, "Overflow" },
+        //{ EdgeResponse.Overflow, "Overflow" },
         { EdgeResponse.Wrap, "Wrap" },
         //{ EdgeResponse.Kill, "Kill" },
         //{ EdgeResponse.Respawn, "Respawn" },
     };
-
-    // Component lookup - initialize in OnEnable
-    private Dictionary<BehaviorMethod, GUIComponent2> GUIComponents;
-    private Dictionary<BehaviorMethod, PointBehavior> Behaviors;
-    private Dictionary<BehaviorMethod, string> BehaviorMethodNames = new Dictionary<BehaviorMethod, string>()
+    public Dictionary <EdgeResponse, string> NameList_EdgeResponse { get { return nameList_EdgeResponse; } }
+    private Dictionary<BehaviorMethod, string> nameList_GenerationMethods = new Dictionary<BehaviorMethod, string>()
     {
-        // Generation
         { BehaviorMethod.Generate_Random, "Random" },
         //{ BehaviorMethod.Generate_PoissonDisc, "Poisson Disc" },
         //{ BehaviorMethod.Generate_LatticeRectangular, "Rectangular Lattice" },
@@ -148,6 +148,10 @@ public class ManagerGUI : MonoBehaviour, IColorable
         //{ BehaviorMethod.Generate_DoubleSlitDistribution, "Double Slit Distribution" },
         //{ BehaviorMethod.Generate_GaussianDistribution, "Gaussian Distribution" },
         //{ BehaviorMethod.Generate_Import, "Import" },
+    };
+    public Dictionary<BehaviorMethod, string> NameList_GenerationMethods { get { return nameList_GenerationMethods; } }
+    private Dictionary<BehaviorMethod, string> nameList_Components = new Dictionary<BehaviorMethod, string>()
+    {
         // Overlay
         //{ BehaviorMethod.Overlay_Web, "Web" },
         //{ BehaviorMethod.Overlay_Triangulation, "Triangulation" },
@@ -169,6 +173,11 @@ public class ManagerGUI : MonoBehaviour, IColorable
         //{ BehaviorMethod.Animate_LotkaVolterra, "Lotka-Volterra Equations" },
         //{ BehaviorMethod.Animate_SpringSystem, "Spring System" },
     };
+    public Dictionary<BehaviorMethod, string> NameList_Components { get { return nameList_Components; } }
+
+    // Component lookup - initialize in OnEnable
+    private Dictionary<BehaviorMethod, GUIComponent2> GUIComponents;
+    private Dictionary<BehaviorMethod, PointBehavior> Behaviors;
 
 
 
@@ -241,9 +250,9 @@ public class ManagerGUI : MonoBehaviour, IColorable
 
         switch (method)
         {
-            case AnimationMethod.Jitter:
+            case BehaviorMethod.Animate_Jitter:
             {
-                GameObject go = Instantiate(animations.jitter, componentGUIParent);
+                GameObject go = Instantiate(animations.jitter, componentInteractiveParent);
                 go.transform.SetSiblingIndex(go.transform.GetSiblingIndex() - 1);
                 GUIComponent_AnimateJitter2 compGUI = go.GetComponent<GUIComponent_AnimateJitter2>();
                 compGUI.Manager_GUI = this;
@@ -252,7 +261,7 @@ public class ManagerGUI : MonoBehaviour, IColorable
                 managerPointSet.AddBehavior(compFunction);
                 // TODO: Improve safety on these
                 // Rebuilds Content layout
-                StartCoroutine(RebuildLayout_NextFrame(componentGUIParent.GetComponent<RectTransform>()));
+                StartCoroutine(RebuildLayout_NextFrame(componentInteractiveParent.GetComponent<RectTransform>()));
                 // Rebuilds Identifier buttons layout
                 StartCoroutine(RebuildLayout_NextFrame(go.transform.GetChild(0).GetChild(0).GetComponent<RectTransform>()));
                 // Rebuilds Organization buttons layout
@@ -260,9 +269,9 @@ public class ManagerGUI : MonoBehaviour, IColorable
 
                 break;
             }
-            case AnimationMethod.StrangeAttractor:
+            case BehaviorMethod.Animate_StrangeAttractor:
             {
-                GameObject go = Instantiate(animations.strangeAttractor, componentGUIParent);
+                GameObject go = Instantiate(animations.strangeAttractor, componentInteractiveParent);
                 go.transform.SetSiblingIndex(go.transform.GetSiblingIndex() - 1);
                 GUIComponent_AnimateStrangeAttractor2 compGUI = go.GetComponent<GUIComponent_AnimateStrangeAttractor2>();
                 compGUI.Manager_GUI = this;
@@ -271,7 +280,7 @@ public class ManagerGUI : MonoBehaviour, IColorable
                 managerPointSet.AddBehavior(compFunction);
                 // TODO: Improve safety on these
                 // Rebuilds Content layout
-                StartCoroutine(RebuildLayout_NextFrame(componentGUIParent.GetComponent<RectTransform>()));
+                StartCoroutine(RebuildLayout_NextFrame(componentInteractiveParent.GetComponent<RectTransform>()));
                 // Rebuilds Identifier buttons layout
                 StartCoroutine(RebuildLayout_NextFrame(go.transform.GetChild(0).GetChild(0).GetComponent<RectTransform>()));
                 // Rebuilds Organization buttons layout
@@ -287,7 +296,7 @@ public class ManagerGUI : MonoBehaviour, IColorable
         managerPointSet.RemoveBehavior(component.GetComponent<PointBehavior_Animate>());
         Destroy(component);
         // ...
-        StartCoroutine(RebuildLayout_NextFrame(componentGUIParent.GetComponent<RectTransform>()));
+        StartCoroutine(RebuildLayout_NextFrame(componentInteractiveParent.GetComponent<RectTransform>()));
     }
 
     public void ApplyColorPalette(ColorPalette colorPalette)
@@ -295,7 +304,7 @@ public class ManagerGUI : MonoBehaviour, IColorable
         IColorable.ApplyColorPalette_Image(menuBackgroundBorder, colorPalette.colorBackgroundPanel);
         IColorable.ApplyColorPalette_Image(menuBackgroundFill, colorPalette.colorBackgroundFill);
         // TODO: Scrollbar
-        foreach (Transform component in componentGUIParent)
+        foreach (Transform component in componentInteractiveParent)
         {
             component.GetComponent<IColorable>().ApplyColorPalette(colorPalette);
         }
@@ -303,10 +312,24 @@ public class ManagerGUI : MonoBehaviour, IColorable
 
     public void ApplyDropdownItems()
     {
-        // TODO: Remove or relocate?
+        componentSettings.Populate();
+        componentGenerate.Populate();
+        foreach (Transform child in componentInteractiveParent)
+        {
+            GUIComponent2 component = child.GetComponent<GUIComponent2>();
+            if (component == null)
+                continue;
+
+            IPopulatable populatable = component as IPopulatable;
+            if (populatable == null)
+                continue;
+
+            populatable.Populate();
+        }
+        componentAddComponent.Populate();
         // TODO: Swap between 2D and 3D
-        dropdownBounds.OverwriteDropdownEntries<BoundsType>(BoundsTypeNames2D);
-        dropdownEdgeResponse.OverwriteDropdownEntries<EdgeResponse>(EdgeResponseNames);
-        dropdownGenerateMethod.OverwriteDropdownEntries<GenerationMethod>(GenerationMethodNames);
+        //GUIOption_Dropdown2.Populate_Dropdown<BoundsType>(dropdownBounds.Dropdown, NameList_Bounds);
+        //GUIOption_Dropdown2.Populate_Dropdown<EdgeResponse>(dropdownEdgeResponse.Dropdown, NameList_EdgeResponse);
+        //GUIOption_Dropdown2.Populate_Dropdown<BehaviorMethod>(dropdownGenerateMethod.Dropdown, NameList_Components);
     }
 }

@@ -14,28 +14,6 @@ public class GUIOption_DropdownGallery2 : GUIOption_Dropdown2
         dropdownGallery.ButtonIncrement.interactable = state;
     }
 
-    public override void OverwriteDropdownEntries(List<string> entries)
-    {
-        dropdownGallery.Dropdown.ClearOptions();
-        foreach (string entry in entries)
-        {
-            dropdownGallery.Dropdown.options.Add(new TMP_Dropdown.OptionData(entry));
-        }
-        dropdownGallery.Dropdown.RefreshShownValue();
-        EditorUtility.SetDirty(dropdownGallery.Dropdown);
-    }
-
-    public override void OverwriteDropdownEntries<T>(Dictionary<T, string> entries)
-    {
-        dropdownGallery.Dropdown.ClearOptions();
-        foreach (KeyValuePair<T, string> entry in entries)
-        {
-            dropdownGallery.Dropdown.options.Add(new TMP_Dropdown.OptionData(entry.Value));
-        }
-        dropdownGallery.Dropdown.RefreshShownValue();
-        EditorUtility.SetDirty(dropdownGallery.Dropdown);
-    }
-
     public override void ApplyColorPalette(ColorPalette palette)
     {
         base.ApplyColorPalette(palette);

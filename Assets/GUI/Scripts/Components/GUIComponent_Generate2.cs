@@ -1,7 +1,8 @@
 using UnityEngine;
-using UnityEngine.UI;
 
-public class GUIComponent_Generate2 : GUIComponent2
+
+
+public class GUIComponent_Generate2 : GUIComponent2, IPopulatable
 {
     [SerializeField] private GUIOption_IncrementalSlider2 controllerPointCount;
     [SerializeField] private GUIOption_Dropdown2 controllerMethod;
@@ -36,5 +37,10 @@ public class GUIComponent_Generate2 : GUIComponent2
         controllerPointCount.ApplyColorPalette(palette);
         controllerMethod.ApplyColorPalette(palette);
         controllerButtons_ClearGenerate.ApplyColorPalette(palette);
+    }
+
+    public void Populate()
+    {
+        IPopulatable.Populate_Dropdown<BehaviorMethod>(controllerMethod.Dropdown, managerGUI.NameList_GenerationMethods);
     }
 }

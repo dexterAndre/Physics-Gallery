@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GUIComponent_AnimateStrangeAttractor2 : GUIComponent2
+public class GUIComponent_AnimateStrangeAttractor2 : GUIComponent2, IPopulatable
 {
     [SerializeField] private GUIOption_IncrementalSlider2 controllerSpeed;
     [SerializeField] private GUIOption_Dropdown2 controllerType;
@@ -31,5 +31,11 @@ public class GUIComponent_AnimateStrangeAttractor2 : GUIComponent2
     {
         base.ApplyColorPalette(palette);
         // TODO: Implement
+    }
+
+    public void Populate()
+    {
+        // TODO: Only strange attractors
+        //IPopulatable.Populate_Dropdown<BehaviorMethod>(controllerType.Dropdown, managerGUI.NameList_Components);
     }
 }

@@ -1,7 +1,10 @@
 using UnityEngine;
-using System.Collections.Generic;
 using TMPro;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
+
+
 
 public class GUIOption_Dropdown2 : GUIOption2
 {
@@ -24,27 +27,6 @@ public class GUIOption_Dropdown2 : GUIOption2
         dropdown.interactable = state;
     }
 
-    public virtual void OverwriteDropdownEntries(List<string> entries)
-    {
-        dropdown.ClearOptions();
-        foreach (string entry in entries)
-        {
-            dropdown.options.Add(new TMP_Dropdown.OptionData(entry));
-        }
-        dropdown.RefreshShownValue();
-        EditorUtility.SetDirty(dropdown);
-    }
-    public virtual void OverwriteDropdownEntries<T>(Dictionary<T, string> entries)
-    {
-        dropdown.ClearOptions();
-        foreach (KeyValuePair<T, string> entry in entries)
-        {
-            dropdown.options.Add(new TMP_Dropdown.OptionData(entry.Value));
-        }
-        dropdown.RefreshShownValue();
-        EditorUtility.SetDirty(dropdown);
-    }
-
     public override void ApplyColorPalette(ColorPalette palette)
     {
         base.ApplyColorPalette(palette);
@@ -54,5 +36,14 @@ public class GUIOption_Dropdown2 : GUIOption2
     public virtual void ApplyDropdownPalette(ColorPalette palette)
     {
         IColorable.ApplyColorPalette_Dropdown(Dropdown, palette);
+    }
+
+    public static void Populate_Dropdown<T>(TMP_Dropdown dropdown, Dictionary<T, string> nameList)
+    {
+        dropdown.ClearOptions();
+        List<string> names = nameList.Values.ToList();
+        dropdown.AddOptions(names);
+        dropdown.RefreshShownValue();
+        EditorUtility.SetDirty(dropdown);
     }
 }

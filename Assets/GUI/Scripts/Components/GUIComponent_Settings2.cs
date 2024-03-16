@@ -1,6 +1,8 @@
 using UnityEngine;
 
-public class GUIComponent_Settings2 : GUIComponent2
+
+
+public class GUIComponent_Settings2 : GUIComponent2, IPopulatable
 {
     [SerializeField] private GUIOption_ToggleFlip2 controllerDimension;
     [SerializeField] private GUIOption_Toggle2 controllerShowBounds;
@@ -42,5 +44,11 @@ public class GUIComponent_Settings2 : GUIComponent2
         controllerShowBounds.ApplyColorPalette(palette);
         controllerBounds.ApplyColorPalette(palette);
         controllerEdgeResponse.ApplyColorPalette(palette);
+    }
+
+    public void Populate()
+    {
+        IPopulatable.Populate_Dropdown<BoundsType>(controllerBounds.Dropdown, managerGUI.NameList_Bounds);
+        IPopulatable.Populate_Dropdown<EdgeResponse>(controllerEdgeResponse.Dropdown, managerGUI.NameList_EdgeResponse);
     }
 }

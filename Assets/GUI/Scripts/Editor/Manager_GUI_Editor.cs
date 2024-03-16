@@ -20,7 +20,7 @@ public class Manager_GUI_Editor : Editor
         Button applyRandomColorsButton = new Button(applyRandomColorPaletteAction);
         applyRandomColorsButton.text = "Apply Random Color Scheme";
 
-        Action applyDropdownItemsACtion = () => manager.ApplyDropdownItems();
+        Action applyDropdownItemsACtion = () => manager.PopulateDropdowns();
         Button applyDropdownItemsButton = new Button(applyDropdownItemsACtion);
         applyDropdownItemsButton.text = "Apply Dropdown Items";
 

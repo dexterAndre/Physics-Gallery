@@ -47,5 +47,4 @@ public class GUIComponent_AddComponent : GUIComponent, IPopulatable
     {
         IPopulatable.Populate_Dropdown<BehaviorMethod>(controllerAddComponent.Dropdown, managerGUI.NameList_Components);
     }
-
 }

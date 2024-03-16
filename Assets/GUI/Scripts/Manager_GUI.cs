@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -257,6 +258,7 @@ public class Manager_GUI : MonoBehaviour, IColorable
                 go.transform.SetSiblingIndex(go.transform.GetSiblingIndex() - 1);
                 GUIComponent_AnimateJitter compGUI = go.GetComponent<GUIComponent_AnimateJitter>();
                 compGUI.Manager_GUI = this;
+                ConditionalPopulateDropdown(compGUI.transform);
                 PointBehavior_AnimationJitter compFunction = go.GetComponent<PointBehavior_AnimationJitter>();
                 compFunction.ManagerPointSet = managerPointSet;
                 managerPointSet.AddBehavior(compFunction);
@@ -276,6 +278,7 @@ public class Manager_GUI : MonoBehaviour, IColorable
                 go.transform.SetSiblingIndex(go.transform.GetSiblingIndex() - 1);
                 GUIComponent_AnimateStrangeAttractor compGUI = go.GetComponent<GUIComponent_AnimateStrangeAttractor>();
                 compGUI.Manager_GUI = this;
+                ConditionalPopulateDropdown(compGUI.transform);
                 PointBehavior_AnimationStrangeAttractor compFunction = go.GetComponent<PointBehavior_AnimationStrangeAttractor>();
                 compFunction.ManagerPointSet = managerPointSet;
                 managerPointSet.AddBehavior(compFunction);
@@ -311,26 +314,32 @@ public class Manager_GUI : MonoBehaviour, IColorable
         }
     }
 
-    public void ApplyDropdownItems()
+    public void PopulateDropdowns()
     {
+        // TODO: Swap between 2D and 3D entries for all affected dropdowns
         componentSettings.Populate();
         componentGenerate.Populate();
+
+        // Populates already-present interactable components
         foreach (Transform child in componentInteractiveParent)
         {
-            GUIComponent component = child.GetComponent<GUIComponent>();
-            if (component == null)
-                continue;
-
-            IPopulatable populatable = component as IPopulatable;
-            if (populatable == null)
-                continue;
-
-            populatable.Populate();
+            ConditionalPopulateDropdown(child);
         }
+
         componentAddComponent.Populate();
-        // TODO: Swap between 2D and 3D
-        //GUIOption_Dropdown.Populate_Dropdown<BoundsType>(dropdownBounds.Dropdown, NameList_Bounds);
-        //GUIOption_Dropdown.Populate_Dropdown<EdgeResponse>(dropdownEdgeResponse.Dropdown, NameList_EdgeResponse);
-        //GUIOption_Dropdown.Populate_Dropdown<BehaviorMethod>(dropdownGenerateMethod.Dropdown, NameList_Components);
+    }
+
+    public static bool ConditionalPopulateDropdown(Transform target)
+    {
+        GUIComponent component = target.GetComponent<GUIComponent>();
+        if (component == null)
+            return false;
+
+        IPopulatable populatable = component as IPopulatable;
+        if (populatable == null)
+            return false;
+
+        populatable.Populate();
+        return true;
     }
 }

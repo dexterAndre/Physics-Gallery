@@ -138,7 +138,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72190eb7b2b4c9b49b5a190904a38cb2, type: 3}
+  m_Script: {fileID: 11500000, guid: 77d6bce86a093a040ac98c9e049ef742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &3311654701337556338
@@ -325,7 +325,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5804861069061846339, guid: 0e5b677ad890745438338386ab4686cf, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 364
+      value: 367
       objectReference: {fileID: 0}
     - target: {fileID: 5804861069061846339, guid: 0e5b677ad890745438338386ab4686cf, type: 3}
       propertyPath: m_SizeDelta.y
@@ -333,7 +333,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5804861069061846339, guid: 0e5b677ad890745438338386ab4686cf, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 182
+      value: 183.5
       objectReference: {fileID: 0}
     - target: {fileID: 5804861069061846339, guid: 0e5b677ad890745438338386ab4686cf, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -362,6 +362,10 @@ PrefabInstance:
     - target: {fileID: 6795710853921589333, guid: 0e5b677ad890745438338386ab4686cf, type: 3}
       propertyPath: m_Name
       value: cmp_generate
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551484431624135708, guid: 0e5b677ad890745438338386ab4686cf, type: 3}
+      propertyPath: m_Interactable
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7551484431624135708, guid: 0e5b677ad890745438338386ab4686cf, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -698,9 +702,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7935321622213189477}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 993ae9a9b373d384c880778c5d6f6aff, type: 3}
+  m_Script: {fileID: 11500000, guid: bc89c15047518c74f9745e6f0beeb37b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  descriptor: {fileID: 0}
   buttons:
   - {fileID: 6354575070774164039}
   - {fileID: 1489650421228099258}
@@ -886,6 +891,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd8f4d3b4b47d514a807261045266a7b, type: 3}
+  m_Script: {fileID: 11500000, guid: 88420d6109f29d04bb1661ced059d427, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

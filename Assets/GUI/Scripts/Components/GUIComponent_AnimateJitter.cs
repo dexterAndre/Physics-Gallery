@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class GUIComponent_AnimateJitter2 : GUIComponent2
+public class GUIComponent_AnimateJitter : GUIComponent
 {
-    [SerializeField] private GUIOption_IncrementalSlider2 controllerSpeed;
-    [SerializeField] private GUIOption_Toggle2 controllerNormalize;
-    [SerializeField] private GUIOption_Toggle2 controllerRelativeSpeed;
+    [SerializeField] private GUIOption_IncrementalSlider controllerSpeed;
+    [SerializeField] private GUIOption_Toggle controllerNormalize;
+    [SerializeField] private GUIOption_Toggle controllerRelativeSpeed;
 
     public float Speed { get { return controllerSpeed.GetValue(); } }
     public bool Normalize { get { return controllerNormalize.GetValue(); } }

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GUIOption_Buttons2 : GUIOption2
+public class GUIOption_Buttons : GUIOption
 {
     [SerializeField] private List<Button> buttons;
     public List<Button> Buttons { get { return buttons; } }

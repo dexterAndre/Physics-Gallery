@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-public class GUIOption_ToggleFlip2 : GUIOption_Toggle2
+
+public class GUIOption_ToggleFlip : GUIOption_Toggle
 {
     public override void ApplyColorPalette(ColorPalette palette)
     {

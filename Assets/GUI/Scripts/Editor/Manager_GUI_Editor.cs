@@ -1,14 +1,13 @@
 using System;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 
-[CustomEditor(typeof(ManagerGUI))]
-public class ManagerGUI_Editor : Editor
+[CustomEditor(typeof(Manager_GUI))]
+public class Manager_GUI_Editor : Editor
 {
     public override VisualElement CreateInspectorGUI()
     {
-        ManagerGUI manager = (ManagerGUI)target;
+        Manager_GUI manager = (Manager_GUI)target;
         VisualElement root = new VisualElement();
         var inspector = new IMGUIContainer(() => base.OnInspectorGUI());
         root.Add(inspector);

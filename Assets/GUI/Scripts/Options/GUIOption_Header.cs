@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-// TODO: CONTINUE: Component calls ApplyColor on GUIOption_Header, each header has a GUIOption_Header component
+
 
 [ExecuteInEditMode]
-public class GUIOption_Header : GUIOption2, IColorable
+public class GUIOption_Header : GUIOption, IColorable
 {
     [SerializeField] private Image background;
     [SerializeField] private GUIController_Toggle collapsibleToggle;
@@ -151,7 +151,7 @@ public class GUIOption_Header : GUIOption2, IColorable
 
     private void DeleteComponent()
     {
-        ManagerPointSet pointSetManager = transform.parent.parent.GetComponent<ManagerPointSet>();
+        Manager_PointSet pointSetManager = transform.parent.parent.GetComponent<Manager_PointSet>();
         if (pointSetManager == null)
         {
             Debug.LogWarning("Could not find ManagerPointSet. Cannot delete component.");

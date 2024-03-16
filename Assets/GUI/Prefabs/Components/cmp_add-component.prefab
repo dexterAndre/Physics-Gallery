@@ -445,8 +445,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactableBackgroundIndicator: {fileID: 0}
+  managerGUI: {fileID: 0}
+  header: {fileID: 0}
   separatorBar: {fileID: 3770653799058879525}
-  controllerAddComponent: {fileID: 4241474199416235814}
+  controllerAddComponent: {fileID: 0}
 --- !u!1 &3904808771869179975
 GameObject:
   m_ObjectHideFlags: 0
@@ -1195,7 +1197,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7657155357755928646}
   - component: {fileID: 6440915887164496676}
-  - component: {fileID: 4241474199416235814}
+  - component: {fileID: 567961885985441051}
   m_Layer: 5
   m_Name: grp_dropdown-button
   m_TagString: Untagged
@@ -1231,7 +1233,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6093798954349541216}
   m_CullTransparentMesh: 1
---- !u!114 &4241474199416235814
+--- !u!114 &567961885985441051
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1240,9 +1242,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 6093798954349541216}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 440bc8250ceb57a4b822bbf548dad65f, type: 3}
+  m_Script: {fileID: 11500000, guid: 6570309ac593c104abdd148c4d651549, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  descriptor: {fileID: 0}
   dropdown: {fileID: 8630632566533011410}
 --- !u!1 &7009703114065424482
 GameObject:

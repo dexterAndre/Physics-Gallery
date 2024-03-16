@@ -1,9 +1,9 @@
 using UnityEngine;
 
-public class GUIComponent_AnimateStrangeAttractor2 : GUIComponent2, IPopulatable
+public class GUIComponent_AnimateStrangeAttractor : GUIComponent, IPopulatable
 {
-    [SerializeField] private GUIOption_IncrementalSlider2 controllerSpeed;
-    [SerializeField] private GUIOption_Dropdown2 controllerType;
+    [SerializeField] private GUIOption_IncrementalSlider controllerSpeed;
+    [SerializeField] private GUIOption_Dropdown controllerType;
 
     public float Speed { get { return controllerSpeed.GetValue(); } }
     public StrangeAttractorType Type { get { return (StrangeAttractorType)controllerType.GetValue(); } }

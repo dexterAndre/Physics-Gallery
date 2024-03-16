@@ -198,7 +198,7 @@ public enum BehaviorMethod
 };
 #endregion // Structs and enums
 
-public class ManagerPointSet : ImmediateModeShapeDrawer
+public class Manager_PointSet : ImmediateModeShapeDrawer
 {
     // Points
     [SerializeField] private List<Vector2> positions2 = new List<Vector2>();
@@ -262,10 +262,10 @@ public class ManagerPointSet : ImmediateModeShapeDrawer
     [SerializeField] private Transform pointsParent;
     [SerializeField] private PrefabType pointType = PrefabType.Circle;
     private PrefabType previousPointType = PrefabType.Circle;
-    [SerializeField] private GUIOption_IncrementalSlider2 guiPointCount;
-    [SerializeField] private GUIOption_DropdownGallery2 guiGenerationMethod;
+    [SerializeField] private GUIOption_IncrementalSlider guiPointCount;
+    [SerializeField] private GUIOption_DropdownGallery guiGenerationMethod;
     [SerializeField] private CoordinateSystem guiCoordinateSystem;
-    [SerializeField] private GUIComponent_Settings2 settings;
+    [SerializeField] private GUIComponent_Settings settings;
 
     [Header("Points")]
     [SerializeField, Range(0f, 0.05f)] private float pointSize = 0.001f;

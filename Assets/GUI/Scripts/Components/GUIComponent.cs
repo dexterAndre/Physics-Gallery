@@ -3,13 +3,13 @@ using UnityEngine.UI;
 
 
 
-public abstract class GUIComponent2 : MonoBehaviour, IColorable
+public abstract class GUIComponent : MonoBehaviour, IColorable
 {
     [SerializeField] private Image interactableBackgroundIndicator;
-    [SerializeField] protected ManagerGUI managerGUI;
+    [SerializeField] protected Manager_GUI managerGUI;
     [SerializeField] protected GUIOption_Header header;
 
-    public ManagerGUI Manager_GUI { set { managerGUI = value; } }
+    public Manager_GUI Manager_GUI { set { managerGUI = value; } }
 
     protected abstract void CheckReferences();
     public void RebuildLayout()

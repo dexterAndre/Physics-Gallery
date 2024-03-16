@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GUIOption_Toggle2 : GUIOption2
+public class GUIOption_Toggle : GUIOption
 {
     [SerializeField] protected Toggle toggle;
     public Toggle Toggle { get { return toggle; } }

@@ -1,7 +1,7 @@
 using UnityEngine;
 using TMPro;
 
-public abstract class GUIOption2 : MonoBehaviour, IColorable
+public abstract class GUIOption : MonoBehaviour, IColorable
 {
     [SerializeField] protected TMP_Text descriptor;
 

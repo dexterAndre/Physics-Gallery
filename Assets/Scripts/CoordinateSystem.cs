@@ -45,7 +45,7 @@ public class CoordinateSystem : ImmediateModeShapeDrawer
     #endregion
 
     [Header("Content Area")]
-    [SerializeField] GUIComponent_Settings2 settingsComponent;
+    [SerializeField] GUIComponent_Settings settingsComponent;
     public bool Is2D
     {
         get

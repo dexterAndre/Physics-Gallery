@@ -1,9 +1,6 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
-using TMPro;
 
-public class GUIOption_DropdownGallery2 : GUIOption_Dropdown2
+public class GUIOption_DropdownGallery : GUIOption_Dropdown
 {
     [SerializeField] private GUIController_DropdownGallery dropdownGallery;
 

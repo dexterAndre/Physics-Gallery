@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GUIOption_IncrementalSlider2 : GUIOption2
+public class GUIOption_IncrementalSlider : GUIOption
 {
     [SerializeField] private GUIController_IncrementalSlider incrementalSlider;
     public GUIController_IncrementalSlider IncrementalSlider { get { return incrementalSlider; } }

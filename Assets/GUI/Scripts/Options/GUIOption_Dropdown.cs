@@ -6,7 +6,7 @@ using UnityEditor;
 
 
 
-public class GUIOption_Dropdown2 : GUIOption2
+public class GUIOption_Dropdown : GUIOption
 {
     [SerializeField] private TMP_Dropdown dropdown;
     public TMP_Dropdown Dropdown { get { return dropdown; } }

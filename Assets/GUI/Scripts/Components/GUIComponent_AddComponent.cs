@@ -2,10 +2,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GUIComponent_AddComponent : GUIComponent2, IPopulatable
+public class GUIComponent_AddComponent : GUIComponent, IPopulatable
 {
     [SerializeField] private Image separatorBar;
-    [SerializeField] private GUIOption_Dropdown2 controllerAddComponent;
+    [SerializeField] private GUIOption_Dropdown controllerAddComponent;
 
     public void SelectDropdownEntry(int index)
     {

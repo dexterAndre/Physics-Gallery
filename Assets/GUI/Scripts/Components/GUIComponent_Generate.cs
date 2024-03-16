@@ -2,11 +2,11 @@ using UnityEngine;
 
 
 
-public class GUIComponent_Generate2 : GUIComponent2, IPopulatable
+public class GUIComponent_Generate : GUIComponent, IPopulatable
 {
-    [SerializeField] private GUIOption_IncrementalSlider2 controllerPointCount;
-    [SerializeField] private GUIOption_Dropdown2 controllerMethod;
-    [SerializeField] private GUIOption_Buttons2 controllerButtons_ClearGenerate;
+    [SerializeField] private GUIOption_IncrementalSlider controllerPointCount;
+    [SerializeField] private GUIOption_Dropdown controllerMethod;
+    [SerializeField] private GUIOption_Buttons controllerButtons_ClearGenerate;
 
     public int PointCount { get { return Mathf.RoundToInt(controllerPointCount.GetValue()); } }
     public int Method { get { return controllerMethod.GetValue(); } }

@@ -2,12 +2,12 @@ using UnityEngine;
 
 
 
-public class GUIComponent_Settings2 : GUIComponent2, IPopulatable
+public class GUIComponent_Settings : GUIComponent, IPopulatable
 {
-    [SerializeField] private GUIOption_ToggleFlip2 controllerDimension;
-    [SerializeField] private GUIOption_Toggle2 controllerShowBounds;
-    [SerializeField] private GUIOption_Dropdown2 controllerBounds;
-    [SerializeField] private GUIOption_Dropdown2 controllerEdgeResponse;
+    [SerializeField] private GUIOption_ToggleFlip controllerDimension;
+    [SerializeField] private GUIOption_Toggle controllerShowBounds;
+    [SerializeField] private GUIOption_Dropdown controllerBounds;
+    [SerializeField] private GUIOption_Dropdown controllerEdgeResponse;
 
     public bool Is2D { get { return controllerDimension.GetValue(); } }
     public bool ShowBounds { get { return controllerShowBounds.GetValue(); } }

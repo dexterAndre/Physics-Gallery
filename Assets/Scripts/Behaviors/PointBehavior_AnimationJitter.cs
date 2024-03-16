@@ -5,12 +5,12 @@ public class PointBehavior_AnimationJitter : PointBehavior_Animate
     public float JitterSpeed { get { return controllerJitterSpeed.IncrementalSlider.SliderValue; } }
     public bool NormalizeJitter { get { return controllerNormalizeJitter.Toggle.isOn; } }
     public bool RelativeSpeed { get { return controllerRelativeSpeed.Toggle.isOn; } }
-    [SerializeField] private GUIOption_IncrementalSlider2 controllerJitterSpeed;
-    public GUIOption_IncrementalSlider2 ControllerJitterSpeed { set { controllerJitterSpeed = value; } }
-    [SerializeField] private GUIOption_Toggle2 controllerNormalizeJitter;
-    public GUIOption_Toggle2 ControllerNormalizeJitter { set { controllerNormalizeJitter = value; } }
-    [SerializeField] private GUIOption_Toggle2 controllerRelativeSpeed;
-    public GUIOption_Toggle2 ControllerRelativeSpeed { set { controllerRelativeSpeed = value; } }
+    [SerializeField] private GUIOption_IncrementalSlider controllerJitterSpeed;
+    public GUIOption_IncrementalSlider ControllerJitterSpeed { set { controllerJitterSpeed = value; } }
+    [SerializeField] private GUIOption_Toggle controllerNormalizeJitter;
+    public GUIOption_Toggle ControllerNormalizeJitter { set { controllerNormalizeJitter = value; } }
+    [SerializeField] private GUIOption_Toggle controllerRelativeSpeed;
+    public GUIOption_Toggle ControllerRelativeSpeed { set { controllerRelativeSpeed = value; } }
 
 
 

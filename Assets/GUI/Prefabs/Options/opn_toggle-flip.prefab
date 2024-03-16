@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5314327916857081109}
   - component: {fileID: 470314792633994689}
   m_Layer: 5
-  m_Name: opn_flipswitch
+  m_Name: opn_toggle-flip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -47,7 +47,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6894996382447230388}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc53aaa51351264478bb8764876f8fe1, type: 3}
+  m_Script: {fileID: 11500000, guid: 8ad79890c66d8ab458926c1e688928b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   descriptor: {fileID: 5542163404857414402}

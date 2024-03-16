@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.UI;
+
+
 
 [System.Serializable]
 public struct ColorPalette
@@ -88,7 +89,7 @@ public struct ComponentUIPair
     public GameObject UIObject;
 }
 
-public class ManagerGUI : MonoBehaviour, IColorable
+public class Manager_GUI : MonoBehaviour, IColorable
 {
     [Header("Color Palette")]
     [SerializeField] private Image menuBackgroundBorder;
@@ -102,12 +103,12 @@ public class ManagerGUI : MonoBehaviour, IColorable
     [SerializeField] private uint lockedComponents = 2;
     // TODO: Do we need this anymore?
     public uint LockedComponents { get { return lockedComponents; } }
-    [SerializeField] private GUIComponent_Settings2 componentSettings;
-    [SerializeField] private GUIComponent_Generate2 componentGenerate;
+    [SerializeField] private GUIComponent_Settings componentSettings;
+    [SerializeField] private GUIComponent_Generate componentGenerate;
     // TODO: Repurpose this? Check all references
     [SerializeField] private Transform componentInteractiveParent;
     [SerializeField] private GUIComponent_AddComponent componentAddComponent;
-    [SerializeField] private ManagerPointSet managerPointSet;
+    [SerializeField] private Manager_PointSet managerPointSet;
 
     [Header("Components")]
     [SerializeField] private PrefabCollection_Overlay overlays;
@@ -115,10 +116,10 @@ public class ManagerGUI : MonoBehaviour, IColorable
     [SerializeField] private PrefabCollection_Animation animations;
 
     [Header("Dropdowns")]
-    //[SerializeField] private GUIOption_DropdownGallery2 dropdownPresets;
-    [SerializeField] private GUIOption_Dropdown2 dropdownBounds;
-    [SerializeField] private GUIOption_Dropdown2 dropdownEdgeResponse;
-    [SerializeField] private GUIOption_Dropdown2 dropdownGenerateMethod;
+    //[SerializeField] private GUIOption_DropdownGallery dropdownPresets;
+    [SerializeField] private GUIOption_Dropdown dropdownBounds;
+    [SerializeField] private GUIOption_Dropdown dropdownEdgeResponse;
+    [SerializeField] private GUIOption_Dropdown dropdownGenerateMethod;
 
     // Dropdown labels
     private Dictionary<BoundsType, string> nameList_Bounds = new Dictionary<BoundsType, string>()
@@ -176,14 +177,14 @@ public class ManagerGUI : MonoBehaviour, IColorable
     public Dictionary<BehaviorMethod, string> NameList_Components { get { return nameList_Components; } }
 
     // Component lookup - initialize in OnEnable
-    private Dictionary<BehaviorMethod, GUIComponent2> GUIComponents;
+    private Dictionary<BehaviorMethod, GUIComponent> GUIComponents;
     private Dictionary<BehaviorMethod, PointBehavior> Behaviors;
 
 
 
     private void OnEnable()
     {
-        GUIComponents = new Dictionary<BehaviorMethod, GUIComponent2>()
+        GUIComponents = new Dictionary<BehaviorMethod, GUIComponent>()
         {
             // Overlays
             //{ BehaviorMethod.Overlay_Web, overlays.web.GetComponent<GUIComponent_OverlayWeb>() },
@@ -198,11 +199,11 @@ public class ManagerGUI : MonoBehaviour, IColorable
             //{ BehaviorMethod.Selector_kMeansClustering, selectors.kMeansClustering.GetComponent<GUIComponent_SelectorKMeansClustering>() },
             //{ BehaviorMethod.Selector_PointSetRegistration, selectors.pointSetRegistration.GetComponent<GUIComponent_SelectorPointSetRegistration>() },
             // Animation
-            { BehaviorMethod.Animate_Jitter, animations.jitter.GetComponent<GUIComponent_AnimateJitter2>() },
+            { BehaviorMethod.Animate_Jitter, animations.jitter.GetComponent<GUIComponent_AnimateJitter>() },
             //{ BehaviorMethod.Animate_Flocking, animations.flocking.GetComponent<GUIComponent_AnimateFlocking>() },
             //{ BehaviorMethod.Animate_VectorField, animations.vectorField.GetComponent<GUIComponent_AnimateVectorField>() },
             //{ BehaviorMethod.Animate_WindSimulation, animations.windSimulation.GetComponent<GUIComponent_AnimateWindSimulation>() },
-            { BehaviorMethod.Animate_StrangeAttractor, animations.strangeAttractor.GetComponent<GUIComponent_AnimateStrangeAttractor2>() },
+            { BehaviorMethod.Animate_StrangeAttractor, animations.strangeAttractor.GetComponent<GUIComponent_AnimateStrangeAttractor>() },
             //{ BehaviorMethod.Animate_LotkaVolterra, animations.lotkaVolterra.GetComponent<GUIComponent_AnimateLotkaVolterra>() },
             //{ BehaviorMethod.Animate_SpringSystem, animations.springSystem.GetComponent<GUIComponent_AnimateSpringSystem>() },
         };
@@ -254,7 +255,7 @@ public class ManagerGUI : MonoBehaviour, IColorable
             {
                 GameObject go = Instantiate(animations.jitter, componentInteractiveParent);
                 go.transform.SetSiblingIndex(go.transform.GetSiblingIndex() - 1);
-                GUIComponent_AnimateJitter2 compGUI = go.GetComponent<GUIComponent_AnimateJitter2>();
+                GUIComponent_AnimateJitter compGUI = go.GetComponent<GUIComponent_AnimateJitter>();
                 compGUI.Manager_GUI = this;
                 PointBehavior_AnimationJitter compFunction = go.GetComponent<PointBehavior_AnimationJitter>();
                 compFunction.ManagerPointSet = managerPointSet;
@@ -273,7 +274,7 @@ public class ManagerGUI : MonoBehaviour, IColorable
             {
                 GameObject go = Instantiate(animations.strangeAttractor, componentInteractiveParent);
                 go.transform.SetSiblingIndex(go.transform.GetSiblingIndex() - 1);
-                GUIComponent_AnimateStrangeAttractor2 compGUI = go.GetComponent<GUIComponent_AnimateStrangeAttractor2>();
+                GUIComponent_AnimateStrangeAttractor compGUI = go.GetComponent<GUIComponent_AnimateStrangeAttractor>();
                 compGUI.Manager_GUI = this;
                 PointBehavior_AnimationStrangeAttractor compFunction = go.GetComponent<PointBehavior_AnimationStrangeAttractor>();
                 compFunction.ManagerPointSet = managerPointSet;
@@ -316,7 +317,7 @@ public class ManagerGUI : MonoBehaviour, IColorable
         componentGenerate.Populate();
         foreach (Transform child in componentInteractiveParent)
         {
-            GUIComponent2 component = child.GetComponent<GUIComponent2>();
+            GUIComponent component = child.GetComponent<GUIComponent>();
             if (component == null)
                 continue;
 
@@ -328,8 +329,8 @@ public class ManagerGUI : MonoBehaviour, IColorable
         }
         componentAddComponent.Populate();
         // TODO: Swap between 2D and 3D
-        //GUIOption_Dropdown2.Populate_Dropdown<BoundsType>(dropdownBounds.Dropdown, NameList_Bounds);
-        //GUIOption_Dropdown2.Populate_Dropdown<EdgeResponse>(dropdownEdgeResponse.Dropdown, NameList_EdgeResponse);
-        //GUIOption_Dropdown2.Populate_Dropdown<BehaviorMethod>(dropdownGenerateMethod.Dropdown, NameList_Components);
+        //GUIOption_Dropdown.Populate_Dropdown<BoundsType>(dropdownBounds.Dropdown, NameList_Bounds);
+        //GUIOption_Dropdown.Populate_Dropdown<EdgeResponse>(dropdownEdgeResponse.Dropdown, NameList_EdgeResponse);
+        //GUIOption_Dropdown.Populate_Dropdown<BehaviorMethod>(dropdownGenerateMethod.Dropdown, NameList_Components);
     }
 }

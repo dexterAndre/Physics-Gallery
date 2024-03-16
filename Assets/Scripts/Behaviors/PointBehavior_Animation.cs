@@ -8,14 +8,14 @@ using UnityEngine;
 */
 public abstract class PointBehavior_Animation : MonoBehaviour
 {
-    [SerializeField] protected ManagerPointSet pointManager;
+    [SerializeField] protected Manager_PointSet pointManager;
 
 
     protected void Awake()
     {
         if (pointManager == null)
         {
-            pointManager = transform.parent.GetComponent<ManagerPointSet>();
+            pointManager = transform.parent.GetComponent<Manager_PointSet>();
             if (pointManager == null)
             {
                 Debug.LogError("ManagerPointSet could not be found. Disabling point animation behavior.");

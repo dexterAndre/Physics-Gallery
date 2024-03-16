@@ -2,6 +2,6 @@ using UnityEngine;
 
 public class PointBehavior : MonoBehaviour
 {
-    protected ManagerPointSet pointManager;
-    public ManagerPointSet ManagerPointSet { set { pointManager = value; } }
+    protected Manager_PointSet pointManager;
+    public Manager_PointSet ManagerPointSet { set { pointManager = value; } }
 }

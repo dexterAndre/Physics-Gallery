@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,11 +10,8 @@ public class GUIComponent_AddComponent : GUIComponent, IPopulatable
 
     public void SelectDropdownEntry(int index)
     {
-        // TODO: Temp
-        if (index == 1)
-            managerGUI.AddComponent(BehaviorMethod.Animate_Jitter);
-        else if (index == 2)
-            managerGUI.AddComponent(BehaviorMethod.Animate_StrangeAttractor);
+        // Decrementing index by one to accommodate for the topmost "Cancel" option
+        managerGUI.AddComponent((BehaviorMethod)(index - 1));
         controllerAddComponent.Dropdown.SetValueWithoutNotify(0);
     }
 
@@ -45,6 +43,11 @@ public class GUIComponent_AddComponent : GUIComponent, IPopulatable
 
     public void Populate()
     {
-        IPopulatable.Populate_Dropdown<BehaviorMethod>(controllerAddComponent.Dropdown, managerGUI.NameList_Components);
+        // Adding a topmost "Cancel" option. Remember to subtract any indices by 1 when using the onValueChanged callback for this.
+        // Whenever anything is selected, it is set back to index 0.
+        // This is because the onValueChanged callback only reacts when the value is changed, and setting invalid values causes other issues.
+        List<string> options = new List<string>() { "Cancel" };
+        options.AddRange(managerGUI.NameList_Components.Values);
+        IPopulatable.Populate_Dropdown(controllerAddComponent.Dropdown, options);
     }
 }

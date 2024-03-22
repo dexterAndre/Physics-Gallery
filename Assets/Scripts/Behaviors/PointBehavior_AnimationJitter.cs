@@ -1,6 +1,16 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-public class PointBehavior_AnimationJitter : PointBehavior_Animate
+
+
+/*
+    To do:
+    [ ] When setting relativeSpeed on: clamp slider between 0 and 1. (?)
+    [ ] When setting relativeSpeed, set delegate instead of constantly if-checking
+    [ ] Cache jitterSpeed on value change only, don't read on every update
+    [ ] Cache normalizeJitter on value changed only, don't read on every update
+*/
+public class PointBehavior_AnimationJitter : PointBehavior
 {
     public float JitterSpeed { get { return controllerJitterSpeed.IncrementalSlider.SliderValue; } }
     public bool NormalizeJitter { get { return controllerNormalizeJitter.Toggle.isOn; } }
@@ -11,40 +21,33 @@ public class PointBehavior_AnimationJitter : PointBehavior_Animate
     public GUIOption_Toggle ControllerNormalizeJitter { set { controllerNormalizeJitter = value; } }
     [SerializeField] private GUIOption_Toggle controllerRelativeSpeed;
     public GUIOption_Toggle ControllerRelativeSpeed { set { controllerRelativeSpeed = value; } }
+    [SerializeField] Manager_PointSet managerPointSet;
 
 
 
-    // TODO: When setting relativeSpeed on: clamp slider between 0 and 1. Off: between 0 and length of shortest axis
-    // TODO: When setting relativeSpeed, set delegate instead of constantly if-checking
-    // TODO: Cache jitterSpeed on value changed only, don't read on every update
-    // TODO: Cache normalizeJitter on value changed only, don't read on every update
-    public override Vector2 UpdateBehavior(Vector2 inVector)
+    private void OnEnable()
     {
-        float speed = JitterSpeed;
-        if (RelativeSpeed)
+        if (managerPointSet == null)
         {
-            // TODO: Optimize cast?
-            Vector2 halfBounds = (Vector3)pointManager.Bounds / 2f;
-            float relativeMultiplier = Mathf.Min(halfBounds.x, halfBounds.y) * 100f;
-            speed *= relativeMultiplier;
+            managerPointSet = GameObject.Find("Points Parent").GetComponent<Manager_PointSet>();
+            if (managerPointSet == null)
+            {
+                Debug.LogWarning("Could not find Manager_PointSet. Cannot use Relative Speed.");
+            }
         }
-        Vector2 direction = new Vector2(
-            Random.Range(-0.5f, 0.5f),
-            Random.Range(-0.5f, 0.5f));
-        if (NormalizeJitter)
-            direction = Vector2.ClampMagnitude(direction, 1f);
-
-        return direction * speed;
     }
 
-    public override Vector3 UpdateBehavior(Vector3 inVector)
+    public override Vector3 UpdateBehavior(List<Vector3> InPoints, int ListIndex = -1)
     {
         float speed = JitterSpeed;
         if (RelativeSpeed)
         {
-            Vector3 halfBounds = (Vector3)pointManager.Bounds / 2f;
-            float relativeMultiplier = Mathf.Min(halfBounds.x, Mathf.Min(halfBounds.y, halfBounds.z)) * 100f;
-            speed *= relativeMultiplier;
+            if (managerPointSet)
+            {
+                Vector3 halfBounds = (Vector3)managerPointSet.Bounds / 2f;
+                float relativeMultiplier = Mathf.Min(halfBounds.x, Mathf.Min(halfBounds.y, halfBounds.z));
+                speed *= relativeMultiplier;
+            }
         }
         Vector3 direction = new Vector3(
             Random.Range(-0.5f, 0.5f),

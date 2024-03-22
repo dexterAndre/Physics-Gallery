@@ -2,15 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PointBehavior_SelectionPointSetRegistration : PointBehavior_Animate
+public class PointBehavior_SelectionPointSetRegistration : PointBehavior
 {
-    public override Vector2 UpdateBehavior(Vector2 inVector)
+    public override Vector3 UpdateBehavior(List<Vector3> InPoints, int ListIndex = -1)
     {
-        throw new System.NotImplementedException();
-    }
-
-    public override Vector3 UpdateBehavior(Vector3 inVector)
-    {
-        throw new System.NotImplementedException();
+        return Vector3.zero;
     }
 }

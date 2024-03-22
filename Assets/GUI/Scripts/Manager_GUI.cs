@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Android;
 using UnityEngine.UI;
 
 
@@ -83,12 +84,6 @@ public struct PrefabCollection_Animation
     public GameObject lotkaVolterra;
     public GameObject springSystem;
 }
-[System.Serializable]
-public struct ComponentUIPair
-{
-    public GameObject FunctionObject;
-    public GameObject UIObject;
-}
 
 public class Manager_GUI : MonoBehaviour, IColorable
 {
@@ -100,21 +95,18 @@ public class Manager_GUI : MonoBehaviour, IColorable
     public ColorPalette PaletteRandom { get { return colorPalette; } }
 
     [Header("Component Management")]
-    // TODO: Do we need this anymore?
-    [SerializeField] private uint lockedComponents = 2;
-    // TODO: Do we need this anymore?
-    public uint LockedComponents { get { return lockedComponents; } }
     [SerializeField] private GUIComponent_Settings componentSettings;
     [SerializeField] private GUIComponent_Generate componentGenerate;
-    // TODO: Repurpose this? Check all references
-    [SerializeField] private Transform componentInteractiveParent;
+    [SerializeField] private Transform componentParentAnimation;
+    [SerializeField] private Transform componentParentOverlay;
+    [SerializeField] private Transform componentParentSelector;
     [SerializeField] private GUIComponent_AddComponent componentAddComponent;
     [SerializeField] private Manager_PointSet managerPointSet;
 
     [Header("Components")]
+    [SerializeField] private PrefabCollection_Animation animations;
     [SerializeField] private PrefabCollection_Overlay overlays;
     [SerializeField] private PrefabCollection_Selector selectors;
-    [SerializeField] private PrefabCollection_Animation animations;
 
     [Header("Dropdowns")]
     //[SerializeField] private GUIOption_DropdownGallery dropdownPresets;
@@ -141,9 +133,9 @@ public class Manager_GUI : MonoBehaviour, IColorable
         //{ EdgeResponse.Respawn, "Respawn" },
     };
     public Dictionary <EdgeResponse, string> NameList_EdgeResponse { get { return nameList_EdgeResponse; } }
-    private Dictionary<BehaviorMethod, string> nameList_GenerationMethods = new Dictionary<BehaviorMethod, string>()
+    private Dictionary<GenerationMethod, string> nameList_GenerationMethods = new Dictionary<GenerationMethod, string>()
     {
-        { BehaviorMethod.Generate_Random, "Random" },
+        { GenerationMethod.Generate_Random, "Random" },
         //{ BehaviorMethod.Generate_PoissonDisc, "Poisson Disc" },
         //{ BehaviorMethod.Generate_LatticeRectangular, "Rectangular Lattice" },
         //{ BehaviorMethod.Generate_LatticeHexagonal, "Hexagonal Lattice" },
@@ -151,7 +143,7 @@ public class Manager_GUI : MonoBehaviour, IColorable
         //{ BehaviorMethod.Generate_GaussianDistribution, "Gaussian Distribution" },
         //{ BehaviorMethod.Generate_Import, "Import" },
     };
-    public Dictionary<BehaviorMethod, string> NameList_GenerationMethods { get { return nameList_GenerationMethods; } }
+    public Dictionary<GenerationMethod, string> NameList_GenerationMethods { get { return nameList_GenerationMethods; } }
     private Dictionary<BehaviorMethod, string> nameList_Components = new Dictionary<BehaviorMethod, string>()
     {
         // Overlay
@@ -178,15 +170,48 @@ public class Manager_GUI : MonoBehaviour, IColorable
     public Dictionary<BehaviorMethod, string> NameList_Components { get { return nameList_Components; } }
 
     // Component lookup - initialize in OnEnable
-    private Dictionary<BehaviorMethod, GUIComponent> GUIComponents;
-    private Dictionary<BehaviorMethod, PointBehavior> Behaviors;
+    private Dictionary<BehaviorMethod, GameObject> ComponentsPrefab;
+    private Dictionary<BehaviorMethod, GUIComponent> ComponentsGUI;
+    private Dictionary<BehaviorMethod, PointBehavior> ComponentsBehavior;
 
 
 
     private void OnEnable()
     {
-        GUIComponents = new Dictionary<BehaviorMethod, GUIComponent>()
+        ComponentsPrefab = new Dictionary<BehaviorMethod, GameObject>()
         {
+            // Overlays
+            //{ BehaviorMethod.Overlay_Web, overlays.web },
+            //{ BehaviorMethod.Overlay_Triangulation, overlays.triangulation },
+            //{ BehaviorMethod.Overlay_ConvexHull, overlays.convexHull },
+            //{ BehaviorMethod.Overlay_VoronoiDiagram, overlays.voronoi },
+            //{ BehaviorMethod.Overlay_Duals, overlays.duals },
+            //{ BehaviorMethod.Overlay_SpatialPartitioning, overlays.spatialPartitioning },
+            //{ BehaviorMethod.Overlay_CenterOfMass, overlays.centerOfMass },
+            // Selection
+            //{ BehaviorMethod.Selector_ClosestToRay, selectors.closestToRay },
+            //{ BehaviorMethod.Selector_kMeansClustering, selectors.kMeansClustering },
+            //{ BehaviorMethod.Selector_PointSetRegistration, selectors.pointSetRegistration },
+            // Animation
+            { BehaviorMethod.Animate_Jitter, animations.jitter },
+            //{ BehaviorMethod.Animate_Flocking, animations.flocking },
+            //{ BehaviorMethod.Animate_VectorField, animations.vectorField },
+            //{ BehaviorMethod.Animate_WindSimulation, animations.windSimulation },
+            { BehaviorMethod.Animate_StrangeAttractor, animations.strangeAttractor },
+            //{ BehaviorMethod.Animate_LotkaVolterra, animations.lotkaVolterra },
+            //{ BehaviorMethod.Animate_SpringSystem, animations.springSystem },
+        };
+
+        ComponentsGUI = new Dictionary<BehaviorMethod, GUIComponent>()
+        {
+            // Animation
+            { BehaviorMethod.Animate_Jitter, animations.jitter.GetComponent<GUIComponent_AnimateJitter>() },
+            //{ BehaviorMethod.Animate_Flocking, animations.flocking.GetComponent<GUIComponent_AnimateFlocking>() },
+            //{ BehaviorMethod.Animate_VectorField, animations.vectorField.GetComponent<GUIComponent_AnimateVectorField>() },
+            //{ BehaviorMethod.Animate_WindSimulation, animations.windSimulation.GetComponent<GUIComponent_AnimateWindSimulation>() },
+            { BehaviorMethod.Animate_StrangeAttractor, animations.strangeAttractor.GetComponent<GUIComponent_AnimateStrangeAttractor>() },
+            //{ BehaviorMethod.Animate_LotkaVolterra, animations.lotkaVolterra.GetComponent<GUIComponent_AnimateLotkaVolterra>() },
+            //{ BehaviorMethod.Animate_SpringSystem, animations.springSystem.GetComponent<GUIComponent_AnimateSpringSystem>() },
             // Overlays
             //{ BehaviorMethod.Overlay_Web, overlays.web.GetComponent<GUIComponent_OverlayWeb>() },
             //{ BehaviorMethod.Overlay_Triangulation, overlays.triangulation.GetComponent<GUIComponent_OverlayTriangulation>() },
@@ -199,17 +224,9 @@ public class Manager_GUI : MonoBehaviour, IColorable
             //{ BehaviorMethod.Selector_ClosestToRay, selectors.closestToRay.GetComponent<GUIComponent_SelectorClosestToRay>() },
             //{ BehaviorMethod.Selector_kMeansClustering, selectors.kMeansClustering.GetComponent<GUIComponent_SelectorKMeansClustering>() },
             //{ BehaviorMethod.Selector_PointSetRegistration, selectors.pointSetRegistration.GetComponent<GUIComponent_SelectorPointSetRegistration>() },
-            // Animation
-            { BehaviorMethod.Animate_Jitter, animations.jitter.GetComponent<GUIComponent_AnimateJitter>() },
-            //{ BehaviorMethod.Animate_Flocking, animations.flocking.GetComponent<GUIComponent_AnimateFlocking>() },
-            //{ BehaviorMethod.Animate_VectorField, animations.vectorField.GetComponent<GUIComponent_AnimateVectorField>() },
-            //{ BehaviorMethod.Animate_WindSimulation, animations.windSimulation.GetComponent<GUIComponent_AnimateWindSimulation>() },
-            { BehaviorMethod.Animate_StrangeAttractor, animations.strangeAttractor.GetComponent<GUIComponent_AnimateStrangeAttractor>() },
-            //{ BehaviorMethod.Animate_LotkaVolterra, animations.lotkaVolterra.GetComponent<GUIComponent_AnimateLotkaVolterra>() },
-            //{ BehaviorMethod.Animate_SpringSystem, animations.springSystem.GetComponent<GUIComponent_AnimateSpringSystem>() },
         };
 
-        Behaviors = new Dictionary<BehaviorMethod, PointBehavior>()
+        ComponentsBehavior = new Dictionary<BehaviorMethod, PointBehavior>()
         {
             // TODO: Rename to "Generate / Overlay / Selector / Animate"
             // Overlays
@@ -243,64 +260,42 @@ public class Manager_GUI : MonoBehaviour, IColorable
     }
     public void AddComponent(BehaviorMethod method)
     {
-        // TODO: Make more generic
-        // TODO: Make dictionary of matching GUI and Behavior types
-
-        // CONTINUE: connect prefabs into here somehow
-        //GameObject go = Instantiate(GUIComponents[method])
-
-
-        switch (method)
+        // GUI
+        GameObject go = Instantiate(ComponentsPrefab[method], componentParentAnimation);
+        GUIComponent compGUI = go.GetComponent<GUIComponent>();    // TODO: Do I need to downcast?
+        if (compGUI == null)
         {
-            case BehaviorMethod.Animate_Jitter:
-            {
-                GameObject go = Instantiate(animations.jitter, componentInteractiveParent);
-                go.transform.SetSiblingIndex(go.transform.GetSiblingIndex() - 1);
-                GUIComponent_AnimateJitter compGUI = go.GetComponent<GUIComponent_AnimateJitter>();
-                compGUI.Manager_GUI = this;
-                ConditionalPopulateDropdown(compGUI.transform);
-                PointBehavior_AnimationJitter compFunction = go.GetComponent<PointBehavior_AnimationJitter>();
-                compFunction.ManagerPointSet = managerPointSet;
-                managerPointSet.AddBehavior(compFunction);
-                // TODO: Improve safety on these
-                // Rebuilds Content layout
-                StartCoroutine(RebuildLayout_NextFrame(componentInteractiveParent.GetComponent<RectTransform>()));
-                // Rebuilds Identifier buttons layout
-                StartCoroutine(RebuildLayout_NextFrame(go.transform.GetChild(0).GetChild(0).GetComponent<RectTransform>()));
-                // Rebuilds Organization buttons layout
-                StartCoroutine(RebuildLayout_NextFrame(go.transform.GetChild(0).GetChild(1).GetComponent<RectTransform>()));
-
-                break;
-            }
-            case BehaviorMethod.Animate_StrangeAttractor:
-            {
-                GameObject go = Instantiate(animations.strangeAttractor, componentInteractiveParent);
-                go.transform.SetSiblingIndex(go.transform.GetSiblingIndex() - 1);
-                GUIComponent_AnimateStrangeAttractor compGUI = go.GetComponent<GUIComponent_AnimateStrangeAttractor>();
-                compGUI.Manager_GUI = this;
-                ConditionalPopulateDropdown(compGUI.transform);
-                PointBehavior_AnimationStrangeAttractor compFunction = go.GetComponent<PointBehavior_AnimationStrangeAttractor>();
-                compFunction.ManagerPointSet = managerPointSet;
-                managerPointSet.AddBehavior(compFunction);
-                // TODO: Improve safety on these
-                // Rebuilds Content layout
-                StartCoroutine(RebuildLayout_NextFrame(componentInteractiveParent.GetComponent<RectTransform>()));
-                // Rebuilds Identifier buttons layout
-                StartCoroutine(RebuildLayout_NextFrame(go.transform.GetChild(0).GetChild(0).GetComponent<RectTransform>()));
-                // Rebuilds Organization buttons layout
-                StartCoroutine(RebuildLayout_NextFrame(go.transform.GetChild(0).GetChild(1).GetComponent<RectTransform>()));
-
-                break;
-            }
+            Debug.LogWarning("GUIComponent missing from instantiated component. Destroying instantiated GameObject.");
+            Destroy(go);
+            return;
         }
+        compGUI.Manager_GUI = this;
+        ConditionalPopulateDropdown(compGUI.transform);
+
+        // Checking over all GUIController_Organization components and conditionally enabling/disabling repositioning buttons
+        // TODO: Improve performance
+        ConditionalSetRepositioningButtonsInteractive();
+        
+        // Functionality
+        PointBehavior compBehavior = go.GetComponent<PointBehavior>();
+        if (compBehavior == null)
+        {
+            Debug.LogWarning("PointBehavior missing from instantiated component. Destroying instantiated GameObject.");
+            Destroy(go);
+            return;
+        }
+        //compBehavior.ManagerPointSet = managerPointSet;
+        managerPointSet.AddBehavior(compBehavior);
+        // Force-updating GUI with newly instantiated component
+        StartCoroutine(RebuildLayout_NextFrame(componentParentAnimation.GetComponent<RectTransform>()));
     }
     public void RemoveComponent(GameObject component)
     {
         // TODO: Make generic
-        managerPointSet.RemoveBehavior(component.GetComponent<PointBehavior_Animate>());
+        managerPointSet.RemoveBehavior(component.GetComponent<PointBehavior>());
         Destroy(component);
         // ...
-        StartCoroutine(RebuildLayout_NextFrame(componentInteractiveParent.GetComponent<RectTransform>()));
+        StartCoroutine(RebuildLayout_NextFrame(componentParentAnimation.GetComponent<RectTransform>()));
     }
 
     public void ApplyColorPalette(ColorPalette colorPalette)
@@ -308,7 +303,7 @@ public class Manager_GUI : MonoBehaviour, IColorable
         IColorable.ApplyColorPalette_Image(menuBackgroundBorder, colorPalette.colorBackgroundPanel);
         IColorable.ApplyColorPalette_Image(menuBackgroundFill, colorPalette.colorBackgroundFill);
         // TODO: Scrollbar
-        foreach (Transform component in componentInteractiveParent)
+        foreach (Transform component in componentParentAnimation)
         {
             component.GetComponent<IColorable>().ApplyColorPalette(colorPalette);
         }
@@ -316,12 +311,12 @@ public class Manager_GUI : MonoBehaviour, IColorable
 
     public void PopulateDropdowns()
     {
-        // TODO: Swap between 2D and 3D entries for all affected dropdowns
+        // TODO: Swap between 2D and 3D entries for all affected dropdowns (including AddComponent dropdown)
         componentSettings.Populate();
         componentGenerate.Populate();
 
         // Populates already-present interactable components
-        foreach (Transform child in componentInteractiveParent)
+        foreach (Transform child in componentParentAnimation)
         {
             ConditionalPopulateDropdown(child);
         }
@@ -341,5 +336,14 @@ public class Manager_GUI : MonoBehaviour, IColorable
 
         populatable.Populate();
         return true;
+    }
+
+    public void ConditionalSetRepositioningButtonsInteractive()
+    {
+        foreach (Transform component in componentParentAnimation)
+        {
+            GUIController_Organization compOrganization = component.GetChild(0).GetChild(1).GetComponent<GUIController_Organization>();
+            compOrganization.ConditionalSetButtonInteractive();
+        }
     }
 }

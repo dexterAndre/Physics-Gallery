@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 [System.Serializable]
@@ -10,7 +9,7 @@ public enum StrangeAttractorType
     Rossler,
 }
 
-public class PointBehavior_AnimationStrangeAttractor : PointBehavior_Animate
+public class PointBehavior_AnimationStrangeAttractor : PointBehavior
 {
     // https://chaoticatmospheres.com/mathrules-strange-attractors
     // https://strange-attractors.org/#/gallery
@@ -42,29 +41,27 @@ public class PointBehavior_AnimationStrangeAttractor : PointBehavior_Animate
         }
     }
     private List<float> attractorParameters;
-    public delegate Vector3 Vector3Delegate_RefVector3(ref Vector3 inVector);
-    public static event Vector3Delegate_RefVector3 AttractorFunction;
+    public delegate Vector3 Vector3Delegate_Vector3(Vector3 inVector);
+    public static event Vector3Delegate_Vector3 AttractorFunction;
 
 
 
-    protected override void Awake()
+    protected void Awake()
     {
-        base.Awake();
-
         SetType(StrangeAttractorType.Lorenz);
     }
 
-    public override Vector2 UpdateBehavior(Vector2 inVector)
-    {
-        // TODO: Handle this
-        return inVector * 0.01f;
-        //throw new System.NotImplementedException();
-    }
+    //public override Vector2 UpdateBehavior(Vector2 inVector)
+    //{
+    //    // TODO: Handle this
+    //    return inVector * 0.01f;
+    //    //throw new System.NotImplementedException();
+    //}
 
-    public override Vector3 UpdateBehavior(Vector3 inVector)
+    public override Vector3 UpdateBehavior(List<Vector3> InPoints, int ListIndex = -1)
     {
         if (AttractorFunction != null)
-            return AttractorFunction(ref inVector) * AttractorSpeed;
+            return AttractorFunction(InPoints[ListIndex]) * AttractorSpeed;
 
         return Vector3.zero;
     }
@@ -78,7 +75,7 @@ public class PointBehavior_AnimationStrangeAttractor : PointBehavior_Animate
         }
     }
 
-    private Vector3 Lorenz(ref Vector3 inVector)
+    private Vector3 Lorenz(Vector3 inVector)
     {
         // Domain is approx. 40 on greatest axis (double it since the base is [-0.5, 0.5])
         float scale = 80f;
@@ -91,7 +88,7 @@ public class PointBehavior_AnimationStrangeAttractor : PointBehavior_Animate
             scaledPosition.x * scaledPosition.y - attractorParameters[2] * scaledPosition.z) / scale;
     }
 
-    private Vector3 Rossler(ref Vector3 inVector)
+    private Vector3 Rossler(Vector3 inVector)
     {
         return new Vector3(
             -(inVector.y + inVector.z),

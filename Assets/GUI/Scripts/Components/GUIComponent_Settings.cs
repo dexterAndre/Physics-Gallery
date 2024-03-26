@@ -48,7 +48,7 @@ public class GUIComponent_Settings : GUIComponent, IPopulatable
 
     public void Populate()
     {
-        IPopulatable.Populate_Dropdown<BoundsType>(controllerBounds.Dropdown, managerGUI.NameList_Bounds);
-        IPopulatable.Populate_Dropdown<EdgeResponse>(controllerEdgeResponse.Dropdown, managerGUI.NameList_EdgeResponse);
+        IPopulatable.Populate_Dropdown<BoundsType>(controllerBounds.Dropdown, Manager_Lookup.Instance.ManagerGUI.NameList_Bounds);
+        IPopulatable.Populate_Dropdown<EdgeResponse>(controllerEdgeResponse.Dropdown, Manager_Lookup.Instance.ManagerGUI.NameList_EdgeResponse);
     }
 }

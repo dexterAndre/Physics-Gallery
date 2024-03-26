@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Shapes;
-using JetBrains.Annotations;
+using System;
 
 
 
@@ -11,11 +11,13 @@ using JetBrains.Annotations;
     [X] Delete old files
     [X] Rename new files
     [X] Rearchitect adding of components and synchronization of them, also how references are gotten at construction
+    [X] Implement singleton class for easier lookup (try to somehow get ManagerGUI and ManagerPointSet as Singletons while enabling drawing of shapes)
+    [ ] Presets
     [ ] Broken: Wrap functions
     [X] Broken: Jitter relative speed
-    [ ] Broken: Add component dropdown (shifted by +1?)
+    [X] Broken: Add component dropdown (shifted by +1?)
     [ ] Animate -> Animation, Selector -> Selection
-    [ ] Rearrange buttons
+    [X] Rearrange buttons
     [ ] Add a few more options and functional adding / removing of components
     [ ] Disable edge organization buttons, as they won't do anything anyway
     [ ] Warning when 2D / 3D is disabled (with clear inticator for the reason)
@@ -26,14 +28,13 @@ using JetBrains.Annotations;
     [X] Animation Jitter component
     [X] Add Component dropdown
     [X] Colorables
-    [ ] Presets
     [X] Delete component
     [ ] Ensure scrolling works
     [X] Collabsible interactable area entire header background
     [ ] Get rid of scrollbar space when not in use. Or get rid of it completely?
     [ ] Colorable scroll bar
     [X] Prevent camera movement while interacting with GUI (simple disable OnMouseOver?)
-    [X] Rename to Manager_PointSet and Manager_GUI
+    [X] Rename to ManagerPointSet and ManagerGUI
     [ ] Points do not disappear (2D, overflow, but probably unrelated as I suspect this is a deeper issue)
     [X] Switching from 3D to 2D leaves front face, not a centered face in the coordinate system bounds
     [ ] Support multiple components of same type
@@ -107,28 +108,6 @@ public class PointAnimProxy
     public float animationTimer;
 }
 [System.Serializable]
-public class PointAnimProxy2 : PointAnimProxy
-{
-    public PointAnimProxy2(Vector2 inPosition = default(Vector2), float inAnimationDuration = 1f)
-    {
-        position = inPosition;
-        animationDuration = inAnimationDuration;
-        animationTimer = 0f;
-    }
-    public PointAnimProxy2(Vector2 inPosition = default(Vector2), float inAnimationDuration = 1f, float inAnimationTimer = 0f)
-    {
-        position = inPosition;
-        animationDuration = inAnimationDuration;
-        animationTimer = inAnimationTimer;
-    }
-    public static implicit operator PointAnimProxy2(PointAnimProxy3 proxy)
-    {
-        return new PointAnimProxy2(proxy.position, proxy.animationDuration, proxy.animationTimer);
-    }
-
-    public Vector2 position;
-}
-[System.Serializable]
 public class PointAnimProxy3 : PointAnimProxy
 {
     public PointAnimProxy3(Vector3 inPosition = default(Vector3), float inAnimationDuration = 1f)
@@ -143,129 +122,30 @@ public class PointAnimProxy3 : PointAnimProxy
         animationDuration = inAnimationDuration;
         animationTimer = inAnimationTimer;
     }
-    public static implicit operator PointAnimProxy3(PointAnimProxy2 proxy)
-    {
-        return new PointAnimProxy3(proxy.position, proxy.animationDuration, proxy.animationTimer);
-    }
 
     public Vector3 position;
 }
-[System.Serializable]
-public enum BoundsType
-{
-    // 2D
-    Square,
-    //Circle,
-    //Sector,
-
-    // 3D
-    Cube,
-    //Sphere,
-    //Cone
-}
-[System.Serializable]
-public enum EdgeResponse
-{
-    Overflow,
-    Wrap,
-    //Kill,
-    //Respawn
-}
-[System.Serializable]
-public enum GenerationMethod
-{
-    Generate_Random,
-    Generate_PoissonDisc,
-    Generate_LatticeRectangular,
-    Generate_LatticeHexagonal,
-    Generate_DoubleSlitDistribution,
-    Generate_GaussianDistribution,
-    Generate_Import,
-}
-[System.Serializable]
-public enum BehaviorMethod
-{
-    // Animation
-    Animate_Jitter,
-    //Animate_Flocking,
-    //Animate_VectorField,
-    //Animate_WindSimulation,
-    Animate_StrangeAttractor,
-    //Animate_LotkaVolterra,
-    //Animate_SpringSystem,
-    // Overlay
-    //Overlay_Web,
-    //Overlay_Triangulation,
-    //Overlay_ConvexHull,
-    //Overlay_Voronoi,
-    //Overlay_Duals,
-    //Overlay_SpatialPartitioning,
-    //Overlay_CenterOfMass,
-    // Selection
-    //Selector_ClosestToRay,
-    //Selector_kMeansClustering,
-    //Selector_PointSetRegistration,
-};
 #endregion // Structs and enums
 
 public class Manager_PointSet : ImmediateModeShapeDrawer
 {
     // Points
-    //[SerializeField] private List<Vector2> positions2 = new List<Vector2>();
-    //[SerializeField] private List<PosRot2> posrots2 = new List<PosRot2>();
     [SerializeField] private List<Vector3> positions3 = new List<Vector3>();
-    [SerializeField] private List<PosRot3> posrots3 = new List<PosRot3>();
-    //[SerializeField] private List<PointAnimProxy2> wrapProxies2 = new List<PointAnimProxy2>();
+    //[SerializeField] private List<PosRot3> posrots3 = new List<PosRot3>();    // TODO: For use with Boids etc.
     [SerializeField] private List<PointAnimProxy3> wrapProxies3 = new List<PointAnimProxy3>();
-    private bool is2D = false;
     public void UpdateDimension(bool InIs2D)
     {
-        if (InIs2D == is2D)
-            return;
+        bool settingsIs2D = Manager_Lookup.Instance.ManagerGUI.ComponentSettings.Is2D;
 
-        bool previousDimensionIs2D = is2D;
-        is2D = settings.Is2D;
+        if (InIs2D == settingsIs2D)
+            return;
 
         // Updating grid points
         guiCoordinateSystem.RecalculateCoordinateSystem();
 
         // Setting delegates
-        Generate_MasterFunction = is2D ? Generate2D_Random : Generate3D_Random;
-
-        // Transferring data
-        // TODO: Optimize
-        //if (previousDimensionIs2D)
-        //{
-        //    positions3 = new List<Vector3>(positions2.Count);
-        //    foreach (Vector2 pos in positions2)
-        //    {
-        //        positions3.Add(pos);
-        //    }
-        //    positions2.Clear();
-
-        //    wrapProxies3 = new List<PointAnimProxy3>(wrapProxies2.Count);
-        //    foreach (PointAnimProxy2 proxy in wrapProxies2)
-        //    {
-        //        wrapProxies3.Add(proxy);
-        //    }
-        //    wrapProxies2.Clear();
-        //}
-        //else
-        //{
-        //    positions2 = new List<Vector2>(positions3.Count);
-        //    foreach (Vector3 pos in positions3)
-        //    {
-        //        positions2.Add(pos);
-        //    }
-        //    positions3.Clear();
-
-        //    wrapProxies2 = new List<PointAnimProxy2>(wrapProxies3.Count);
-        //    foreach (PointAnimProxy2 proxy in wrapProxies3)
-        //    {
-        //        wrapProxies2.Add(proxy);
-        //    }
-        //    wrapProxies3.Clear();
-        //}
+        Generate_MasterFunction = settingsIs2D ? GeneratePoints_Random2D : GeneratePoints_Random3D;
+        WrapPoint_MasterFunction = settingsIs2D ? WrapPoint_Rectangular2D : WrapPoint_Rectangular3D;
     }
 
     [Header("Spawning")]
@@ -295,7 +175,6 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
     [SerializeField] private float wrapAnimationDuration = 1f;
     [SerializeField] private float wrapAnimationRadiusMultiplier = 1f;
     [SerializeField] private float wrapAnimationThickness = 3f;
-    [SerializeField] private EdgeResponse edgeResponse;
 
     // Misc.
     public Vector3Int Bounds { get { return guiCoordinateSystem.bounds; } }
@@ -305,17 +184,17 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
 
     // Callbacks
     public delegate void VoidDelegate_ZeroParameters();
-    public delegate void VoidDelegate_IntVector2(int arg1, Vector2 arg2);
-    public delegate void VoidDelegate_IntVector3(int arg1, Vector3 arg2);
+    public delegate void VoidDelegate_Int(int arg1);
     public delegate void VoidDelegate_Vector3Float(Vector3 arg1, float arg2);
 
     // Generation delegates
     public static event VoidDelegate_ZeroParameters Generate_MasterFunction;
 
     // Misc. delegates
-    public static event VoidDelegate_IntVector2 WrapPoint2D_MasterFunction;
-    public static event VoidDelegate_IntVector3 WrapPoint3D_MasterFunction;
+    public static event VoidDelegate_Int WrapPoint_MasterFunction;
     public static event VoidDelegate_Vector3Float DrawPoint_MasterFunction;
+
+
 
     // Animation components
     // TODO: Rename to behaviorsAnimation, behaviorsOverlay, behaviorsSelection
@@ -327,35 +206,21 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
     public List<PointBehavior> SelectionBehaviors { get { return selectionBehaviors; } }
     //[SerializeField] private List<PointBehavior_Animate> overlayBehaviors = new List<PointBehavior_Animate>();
     //[SerializeField] private List<PointBehavior_Animate> selectionBehaviors = new List<PointBehavior_Animate>();
+    [SerializeField]
+    //private Dictionary<EdgeResponse, Action<int>> edgeResponseMethods = new Dictionary<EdgeResponse, Action<int>>();
+    private Dictionary<EdgeResponse, VoidDelegate_Int> edgeResponseMethods = new Dictionary<EdgeResponse, VoidDelegate_Int>();
+    public Dictionary<EdgeResponse, VoidDelegate_Int> EdgeResponseMethods { get { return edgeResponseMethods; } }
+    [SerializeField] private Dictionary<GenerationMethod, Action> generationMethods = new Dictionary<GenerationMethod, Action>();
+    public Dictionary<GenerationMethod, Action> GenerationMethods { get { return generationMethods; } }
 
 
 
     private void Awake()
     {
-        drawMatrix = transform.localToWorldMatrix;
         UpdateDrawParameters();
         EvaluateShapeCoordinates();
         SetPointType(pointType);    // Runs setter, which selects drawing delegate
         animationBehaviors.Clear();
-
-        // TODO: Collect existing components into lists? Or is this obsolete now?
-
-        //foreach (Transform child in transform)
-        //{
-        //    PointBehavior_Animate behavior = child.GetComponent<PointBehavior_Animate>();
-        //    if (behavior != null)
-        //    {
-        //        animationBehaviors.Add(behavior);
-        //    }
-        //}
-        //foreach (Transform child in transform)
-        //{
-        //    PointBehavior_Animate behavior = child.GetComponent<PointBehavior>();
-        //    if (behavior != null)
-        //    {
-        //        //overlayBehaviors.Add(behavior);
-        //    }
-        //}
 
         // GUI-related reading
         StartCoroutine(ReadGUIData());
@@ -367,11 +232,13 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
 
         previousPointType = pointType;
 
-        Generate_MasterFunction = Generate3D_Random;
+        Generate_MasterFunction = GeneratePoints_Random3D;
         // TODO: Make wrapping functions static, passing in the list and index instead
-        //WrapPoint2D_MasterFunction = MovePoint2D_WrappedRectangular;
-        WrapPoint3D_MasterFunction = MovePoint3D_WrappedRectangular;
+        //WrapPoint2D_MasterFunction = WrapPoint_Rectangular3D;
+        WrapPoint_MasterFunction = WrapPoint_Rectangular3D;
 
+        CollectEdgeResponseMethods();
+        
         drawMatrix = transform.localToWorldMatrix;
         UpdateDrawParameters();
         EvaluateShapeCoordinates();
@@ -382,13 +249,13 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
         base.OnDisable();
 
         Generate_MasterFunction = null;
-        WrapPoint2D_MasterFunction = null;
-        WrapPoint3D_MasterFunction = null;
+        WrapPoint_MasterFunction = null;
     }
 
     private void OnValidate()
     {
         UpdateDrawParameters();
+        CollectEdgeResponseMethods();
 
         if (previousPointType != pointType)
         {
@@ -408,17 +275,19 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
         // TODO: Split off 2D behaviors and 3D on a delegate
         foreach (PointBehavior behavior in animationBehaviors)
         {
-            Vector3 movement = Vector3.zero;
             for (int i = 0; i < positions3.Count; i++)
             {
-                positions3[i] += behavior.UpdateBehavior(positions3, i) * Time.deltaTime;
+                MovePoint(i, behavior.UpdateBehavior(positions3, i) * Time.deltaTime);
             }
         }
 
-        // 4. Process edge responses
-        for (int i = 0; i < positions3.Count; i++)
+        // 4. Process edge responses after all movement has been made
+        if (WrapPoint_MasterFunction != null)
         {
-            //WrapPoint3D_MasterFunction?.Invoke(i, positions3[i]);
+            for (int i = 0; i < positions3.Count; i++)
+            {
+                WrapPoint_MasterFunction.Invoke(i);
+            }
         }
 
         // 5. Update all overlay behaviors
@@ -454,7 +323,7 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
         //            movement += animationBehavior.UpdateBehavior(position);
         //        }
 
-        //        WrapPoint3D_MasterFunction?.Invoke(i, movement);
+        //        WrapPoint_MasterFunction?.Invoke(i, movement);
         //    }
         //}
 
@@ -587,15 +456,15 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
     private Vector2 GenerateRandomPoint2D_Rectangular(Vector2 size)
     {
         return new Vector2(
-            Random.Range(-size.x, size.x),
-            Random.Range(-size.y, size.y));
+            UnityEngine.Random.Range(-size.x, size.x),
+            UnityEngine.Random.Range(-size.y, size.y));
     }
     private Vector3 GenerateRandomPoint3D_Rectangular(Vector3 size)
     {
         return new Vector3(
-            Random.Range(-size.x, size.x),
-            Random.Range(-size.y, size.y),
-            Random.Range(-size.z, size.z));
+            UnityEngine.Random.Range(-size.x, size.x),
+            UnityEngine.Random.Range(-size.y, size.y),
+            UnityEngine.Random.Range(-size.z, size.z));
     }
     //private Vector2 GenerateRandomPoint_Circle(float radius)
     //{
@@ -605,7 +474,7 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
     //{
     //    return Vector2.zero;
     //}
-    private void Generate2D_Random()
+    public void GeneratePoints_Random2D()
     {
         if (guiPointCount == null)
         {
@@ -628,7 +497,7 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
             positions3.Add(GenerateRandomPoint2D_Rectangular(bounds));
         }
     }
-    private void Generate3D_Random()
+    public void GeneratePoints_Random3D()
     {
         if (guiPointCount == null)
         {
@@ -651,6 +520,48 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
             positions3.Add(GenerateRandomPoint3D_Rectangular(bounds));
         }
     }
+    public void GeneratePoints_BlueNoise2D()
+    {
+        throw new NotImplementedException();
+    }
+    public void GeneratePoints_BlueNoise3D()
+    {
+        throw new NotSupportedException();
+    }
+    public void GeneratePoints_LatticeRectangular2D()
+    {
+        throw new NotImplementedException();
+    }
+    public void GeneratePoints_LatticeRectangular3D()
+    {
+        throw new NotImplementedException();
+    }
+    public void GeneratePoints_LatticeHexagonal2D()
+    {
+        throw new NotImplementedException();
+    }
+    // TODO: Is this even possible?
+    //public void GeneratePoints_LatticeHexagonal3D()
+    //{
+    //    throw new NotImplementedException();
+    //}
+    public void GeneratePoints_DoubleSlitDistribution()
+    {
+        throw new NotImplementedException();
+    }
+    public void GeneratePoints_GaussianDistribution2D()
+    {
+        throw new NotImplementedException();
+    }
+    public void GeneratePoints_GaussianDistribution3D()
+    {
+        throw new NotImplementedException();
+    }
+    // TODO: May need to force-swap between dimensions. Possibly a toast popup message?
+    public void GeneratePoints_Import()
+    {
+        throw new NotImplementedException();
+    }
     #endregion  // Generation
     #region Overlay
     #endregion  // Overlay
@@ -661,113 +572,39 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
     #endregion  // Behavior functionality
 
     #region Points
-    public void SetPoint(int index, Vector3 point)
+    public void SetPoint(int index, Vector3 position)
     {
-        positions3[index] = point;
+        positions3[index] = position;
     }
     public void MovePoint(int index, Vector3 displacement)
     {
-        Vector3 newPos = positions3[index] + displacement * Time.deltaTime;
-        positions3[index] = newPos;
+        positions3[index] += (displacement * Time.deltaTime);
     }
-    public void MovePoint2D_WrappedRectangular(int index, Vector3 displacement)
+    public void WrapPoint_Rectangular2D(int index)
     {
-        Vector3 newPos = positions3[index] + displacement * Time.deltaTime;
-        Vector3 wrapAnimationPosition = newPos;
-
-        // Wrapping
-        Vector2 boundsHalf = guiCoordinateSystem.BoundsHalf;
-        Vector2 interval = (Vector3)guiCoordinateSystem.bounds;
-        bool shouldWrap = false;
-        // TODO: Should consider corner cases, where it may have exeeded the bounds on several axes in one update
-        // For now, just project (same for 3D version)
-        if (newPos.x < -boundsHalf.x)
+        Vector3 wrapAnimationPosition = Vector3.zero;
+        Vector3 boundsHalf_Cached = guiCoordinateSystem.BoundsHalf;
+        Vector3 point = positions3[index];
+        if (!MathUtils.IsInside_AABB_2D(point, boundsHalf_Cached, ref wrapAnimationPosition))
         {
-            newPos.x += interval.x;
-            shouldWrap = true;
-            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[2], Vector2.up);
-        }
-        else if (newPos.x > boundsHalf.x)
-        {
-            newPos.x -= interval.x;
-            shouldWrap = true;
-            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[3], Vector2.up);
-        }
-        if (newPos.y < -boundsHalf.y)
-        {
-            newPos.y += interval.y;
-            shouldWrap = true;
-            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[2], Vector2.right);
-        }
-        else if (newPos.y > boundsHalf.y)
-        {
-            newPos.y -= interval.y;
-            shouldWrap = true;
-            wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[1], Vector2.right);
-        }
-
-        if (shouldWrap)
-        {
+            // Wraps point
+            SetPoint(index, MathUtils.Wrap(point, -boundsHalf_Cached, boundsHalf_Cached));
+            // Leaves tombstone indicator that point has wrapped
             wrapProxies3.Add(new PointAnimProxy3(wrapAnimationPosition, wrapAnimationDuration));
         }
-
-        //positions2[index] = newPos;
-        positions3[index] = newPos;
     }
-    public void MovePoint3D_WrappedRectangular(int index, Vector3 displacement)
+    public void WrapPoint_Rectangular3D(int index)
     {
-        Vector3 newPos = positions3[index] + displacement * Time.deltaTime;
-        Vector3 wrapAnimationPosition = newPos;
-
-        // Wrapping
-        Vector3 boundsHalf = guiCoordinateSystem.BoundsHalf;
-        Vector3 interval = (Vector3)guiCoordinateSystem.bounds;
-        bool shouldWrap = false;
-        if (newPos.x < -boundsHalf.x)
+        Vector3 wrapAnimationPosition = Vector3.zero;
+        Vector3 boundsHalf_Cached = guiCoordinateSystem.BoundsHalf;
+        Vector3 point = positions3[index];
+        if (!MathUtils.IsInside_AABB_3D(point, boundsHalf_Cached, ref wrapAnimationPosition))
         {
-            newPos.x += interval.x;
-            shouldWrap = true;
-            //wrapAnimationPosition = MathUtils.ClosestPointToLine(wrapAnimationPosition, guiCoordinateSystem.GridCorners[2], Vector3.up);
-            wrapAnimationPosition = Vector3.right * boundsHalf.x + Vector3.ProjectOnPlane(wrapAnimationPosition, Vector3.right);
-        }
-        else if (newPos.x > boundsHalf.x)
-        {
-            newPos.x -= interval.x;
-            shouldWrap = true;
-            wrapAnimationPosition = Vector3.left * boundsHalf.x + Vector3.ProjectOnPlane(wrapAnimationPosition, Vector3.left);
-        }
-        if (newPos.y < -boundsHalf.y)
-        {
-            newPos.y += interval.y;
-            shouldWrap = true;
-            wrapAnimationPosition = Vector3.up * boundsHalf.y + Vector3.ProjectOnPlane(wrapAnimationPosition, Vector3.up);
-        }
-        else if (newPos.y > boundsHalf.y)
-        {
-            newPos.y -= interval.y;
-            shouldWrap = true;
-            wrapAnimationPosition = Vector3.down * boundsHalf.y + Vector3.ProjectOnPlane(wrapAnimationPosition, Vector3.down);
-        }
-        // TODO: Complete z-axis wrapping
-        if (newPos.z < -boundsHalf.z)
-        {
-            newPos.z += interval.z;
-            shouldWrap = true;
-            wrapAnimationPosition = Vector3.forward * boundsHalf.z + Vector3.ProjectOnPlane(wrapAnimationPosition, Vector3.forward);
-        }
-        else if (newPos.z > boundsHalf.z)
-        {
-            newPos.z -= interval.z;
-            shouldWrap = true;
-            wrapAnimationPosition = Vector3.back * boundsHalf.z + Vector3.ProjectOnPlane(wrapAnimationPosition, Vector3.back);
-        }
-
-        if (shouldWrap)
-        {
+            // Wraps point
+            SetPoint(index, MathUtils.Wrap(point, -boundsHalf_Cached, boundsHalf_Cached));
+            // Leaves tombstone indicator that point has wrapped
             wrapProxies3.Add(new PointAnimProxy3(wrapAnimationPosition, wrapAnimationDuration));
         }
-
-        positions3[index] = newPos;
     }
     public int PointCount()
     {
@@ -856,6 +693,7 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
 
     private void UpdateDrawParameters()
     {
+        drawMatrix = transform.localToWorldMatrix;
         Draw.LineGeometry = lineGeometry;
         Draw.DiscGeometry = discGeometry;
         Draw.ThicknessSpace = thicknessSpace;
@@ -905,34 +743,21 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
     #endregion // Drawing
 
     #region Member variables
-    public void SetEdgeResponse(int enumIndex)
+    private void CollectEdgeResponseMethods()
     {
-        edgeResponse = (EdgeResponse)enumIndex;
-        switch (edgeResponse)
+        // Would not initialize at declaration, so I'm manually collecting them here. 
+        // This is always called from OnEnable.
+        edgeResponseMethods.Clear();
+        edgeResponseMethods = new Dictionary<EdgeResponse, VoidDelegate_Int>
         {
-            case EdgeResponse.Overflow:
-            {
-                WrapPoint3D_MasterFunction = MovePoint;
-                break;
-            }
-            case EdgeResponse.Wrap:
-            {
-                WrapPoint3D_MasterFunction = MovePoint3D_WrappedRectangular;
-                break;
-            }
-            //case EdgeResponse.Kill:
-            //{
-            //    break;
-            //}
-            //case EdgeResponse.Respawn:
-            //{
-            //    break;
-            //}
-            default:
-            {
-                break;
-            }
-        }
+            { EdgeResponse.Overflow,    null },
+            { EdgeResponse.Wrap,        WrapPoint_Rectangular3D },
+        };
+    }
+
+    public void SetEdgeResponse(EdgeResponse response)
+    {
+        WrapPoint_MasterFunction = EdgeResponseMethods[response];
     }
     public PrefabType SetPointType(PrefabType type)
     {

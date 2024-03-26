@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Android;
 using UnityEngine.UI;
 
 
@@ -96,6 +94,7 @@ public class Manager_GUI : MonoBehaviour, IColorable
 
     [Header("Component Management")]
     [SerializeField] private GUIComponent_Settings componentSettings;
+    public GUIComponent_Settings ComponentSettings { get { return componentSettings; } }
     [SerializeField] private GUIComponent_Generate componentGenerate;
     [SerializeField] private Transform componentParentAnimation;
     [SerializeField] private Transform componentParentOverlay;
@@ -115,35 +114,8 @@ public class Manager_GUI : MonoBehaviour, IColorable
     [SerializeField] private GUIOption_Dropdown dropdownGenerateMethod;
 
     // Dropdown labels
-    private Dictionary<BoundsType, string> nameList_Bounds = new Dictionary<BoundsType, string>()
-    {
-        { BoundsType.Square, "Square" },
-        //{ BoundsType.Circle, "Circle" },
-        //{ BoundsType.Sector, "Sector" },
-        //{ BoundsType.Cube, "Cube" },
-        //{ BoundsType.Sphere, "Sphere" },
-        //{ BoundsType.Cone, "Cone" },
-    };
-    public Dictionary<BoundsType, string> NameList_Bounds { get { return nameList_Bounds; } }
-    private Dictionary<EdgeResponse, string> nameList_EdgeResponse = new Dictionary<EdgeResponse, string>()
-    {
-        //{ EdgeResponse.Overflow, "Overflow" },
-        { EdgeResponse.Wrap, "Wrap" },
-        //{ EdgeResponse.Kill, "Kill" },
-        //{ EdgeResponse.Respawn, "Respawn" },
-    };
-    public Dictionary <EdgeResponse, string> NameList_EdgeResponse { get { return nameList_EdgeResponse; } }
-    private Dictionary<GenerationMethod, string> nameList_GenerationMethods = new Dictionary<GenerationMethod, string>()
-    {
-        { GenerationMethod.Generate_Random, "Random" },
-        //{ BehaviorMethod.Generate_PoissonDisc, "Poisson Disc" },
-        //{ BehaviorMethod.Generate_LatticeRectangular, "Rectangular Lattice" },
-        //{ BehaviorMethod.Generate_LatticeHexagonal, "Hexagonal Lattice" },
-        //{ BehaviorMethod.Generate_DoubleSlitDistribution, "Double Slit Distribution" },
-        //{ BehaviorMethod.Generate_GaussianDistribution, "Gaussian Distribution" },
-        //{ BehaviorMethod.Generate_Import, "Import" },
-    };
-    public Dictionary<GenerationMethod, string> NameList_GenerationMethods { get { return nameList_GenerationMethods; } }
+
+
     private Dictionary<BehaviorMethod, string> nameList_Components = new Dictionary<BehaviorMethod, string>()
     {
         // Overlay
@@ -269,7 +241,6 @@ public class Manager_GUI : MonoBehaviour, IColorable
             Destroy(go);
             return;
         }
-        compGUI.Manager_GUI = this;
         ConditionalPopulateDropdown(compGUI.transform);
 
         // Checking over all GUIController_Organization components and conditionally enabling/disabling repositioning buttons

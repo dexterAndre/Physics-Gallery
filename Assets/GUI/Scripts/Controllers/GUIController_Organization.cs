@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,8 +9,6 @@ using UnityEngine.UI;
 // TODO: After repositioning, disable corresponding organizational buttons if they are at top or bottom
 public class GUIController_Organization : MonoBehaviour
 {
-    [SerializeField] private Manager_GUI managerGUI;
-    [SerializeField] private Manager_PointSet managerPointSet;
     private PointBehavior pointBehavior;
     [SerializeField] private Button buttonDelete;
     [SerializeField] private Button buttonMoveDown;
@@ -20,29 +16,16 @@ public class GUIController_Organization : MonoBehaviour
 
     private void OnEnable()
     {
-        if (managerGUI == null)
+        if (Manager_Lookup.Instance.ManagerGUI == null)
         {
-            GUIComponent comp = transform.parent.parent.GetComponent<GUIComponent>();
-            if (comp == null)
-            {
-                Debug.LogWarning("Cannot find Manager_GUI for GUIController_Organization. Disabling organization bar's functionality.");
-                gameObject.SetActive(false);
-            }
-            else
-            {
-                managerGUI = comp.ManagerGUI;
-            }
+            Debug.LogWarning("Cannot find Manager_GUI for GUIController_Organization. Disabling organization bar's functionality.");
+            gameObject.SetActive(false);
         }
 
-        if (managerPointSet == null)
+        if (Manager_Lookup.Instance.ManagerPointSet == null)
         {
-            GameObject pointsParent = GameObject.Find("Points Parent");
-            managerPointSet = pointsParent.GetComponent<Manager_PointSet>();
-            if (managerPointSet == null)
-            {
-                Debug.LogWarning("Cannot find Manager_PointSet for GUIController_Organization. Disabling organization bar's functionality.");
-                gameObject.SetActive(false);
-            }
+            Debug.LogWarning("Cannot find Manager_PointSet for GUIController_Organization. Disabling organization bar's functionality.");
+            gameObject.SetActive(false);
         }
 
         if (pointBehavior == null)
@@ -114,10 +97,10 @@ public class GUIController_Organization : MonoBehaviour
     public void DeleteComponent()
     {
         // TODO: Differentiate between animation, overlay, and selection
-        managerPointSet.RemoveBehavior(pointBehavior);
+        Manager_Lookup.Instance.ManagerPointSet.RemoveBehavior(pointBehavior);
         Destroy(pointBehavior.gameObject);
         // TODO: May count destroy-queued object - delay
-        managerGUI.ConditionalSetRepositioningButtonsInteractive();
+        Manager_Lookup.Instance.ManagerGUI.ConditionalSetRepositioningButtonsInteractive();
         LayoutRebuilder.ForceRebuildLayoutImmediate(pointBehavior.transform.parent.GetComponent<RectTransform>());
     }
 
@@ -137,14 +120,14 @@ public class GUIController_Organization : MonoBehaviour
             return;
         }
 
-        if (componentTransform.parent.childCount != managerPointSet.AnimationBehaviors.Count)
+        if (componentTransform.parent.childCount != Manager_Lookup.Instance.ManagerPointSet.AnimationBehaviors.Count)
         {
             Debug.LogWarning("Manager_GUI's component count not in sync with Manager_PointSet's behaviors count. Aborting repositioning operation.");
             return;
         }
 
         int siblingIndex = componentTransform.GetSiblingIndex();
-        if (pointBehavior != managerPointSet.AnimationBehaviors[siblingIndex])
+        if (pointBehavior != Manager_Lookup.Instance.ManagerPointSet.AnimationBehaviors[siblingIndex])
         {
             Debug.LogWarning("This component's PointBehavior is not equal to Manager_PointSet's behavior at the same child/list index. Aborting repositioning operation.");
             return;
@@ -159,8 +142,8 @@ public class GUIController_Organization : MonoBehaviour
             }
 
             // PointBehavior list
-            managerPointSet.AnimationBehaviors[siblingIndex] = managerPointSet.AnimationBehaviors[siblingIndex - 1];
-            managerPointSet.AnimationBehaviors[siblingIndex - 1] = pointBehavior;
+            Manager_Lookup.Instance.ManagerPointSet.AnimationBehaviors[siblingIndex] = Manager_Lookup.Instance.ManagerPointSet.AnimationBehaviors[siblingIndex - 1];
+            Manager_Lookup.Instance.ManagerPointSet.AnimationBehaviors[siblingIndex - 1] = pointBehavior;
 
             // GUI position
             componentTransform.SetSiblingIndex(siblingIndex - 1);
@@ -174,14 +157,14 @@ public class GUIController_Organization : MonoBehaviour
             }
 
             // PointBehavior list
-            managerPointSet.AnimationBehaviors[siblingIndex] = managerPointSet.AnimationBehaviors[siblingIndex + 1];
-            managerPointSet.AnimationBehaviors[siblingIndex + 1] = pointBehavior;
+            Manager_Lookup.Instance.ManagerPointSet.AnimationBehaviors[siblingIndex] = Manager_Lookup.Instance.ManagerPointSet.AnimationBehaviors[siblingIndex + 1];
+            Manager_Lookup.Instance.ManagerPointSet.AnimationBehaviors[siblingIndex + 1] = pointBehavior;
 
             // GUI position
             componentTransform.SetSiblingIndex(siblingIndex + 1);
         }
 
-        StartCoroutine(ConditionalSetRepositioningButtonsInteractive_NextFrame);
+        StartCoroutine(ConditionalSetRepositioningButtonsInteractive_NextFrame());
     }
 
     public void MoveComponentDown()
@@ -213,7 +196,7 @@ public class GUIController_Organization : MonoBehaviour
     private IEnumerator ConditionalSetRepositioningButtonsInteractive_NextFrame()
     {
         yield return new WaitForEndOfFrame();
-        managerGUI.ConditionalSetRepositioningButtonsInteractive();
+        Manager_Lookup.Instance.ManagerGUI.ConditionalSetRepositioningButtonsInteractive();
         LayoutRebuilder.ForceRebuildLayoutImmediate(pointBehavior.transform.parent.GetComponent<RectTransform>());
         yield return null;
     }

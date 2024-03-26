@@ -6,11 +6,9 @@ using UnityEngine.UI;
 public abstract class GUIComponent : MonoBehaviour, IColorable
 {
     [SerializeField] private Image interactableBackgroundIndicator;
-    [SerializeField] protected Manager_GUI managerGUI;
-    public Manager_GUI ManagerGUI { get { return managerGUI; } }
     [SerializeField] protected GUIOption_Header header;
 
-    public Manager_GUI Manager_GUI { set { managerGUI = value; } }
+
 
     protected abstract void CheckReferences();
     public void RebuildLayout()
@@ -23,7 +21,7 @@ public abstract class GUIComponent : MonoBehaviour, IColorable
     }
     public void DeleteComponent()
     {
-        managerGUI.RemoveComponent(gameObject);
+        Manager_Lookup.Instance.ManagerGUI.RemoveComponent(gameObject);
     }
 
     public virtual void ApplyColorPalette(ColorPalette palette)

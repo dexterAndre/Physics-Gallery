@@ -11,7 +11,7 @@ public class GUIComponent_AddComponent : GUIComponent, IPopulatable
     public void SelectDropdownEntry(int index)
     {
         // Decrementing index by one to accommodate for the topmost "Cancel" option
-        managerGUI.AddComponent((BehaviorMethod)(index - 1));
+        Manager_Lookup.Instance.ManagerGUI.AddComponent((BehaviorMethod)(index - 1));
         controllerAddComponent.Dropdown.SetValueWithoutNotify(0);
     }
 
@@ -22,7 +22,7 @@ public class GUIComponent_AddComponent : GUIComponent, IPopulatable
             Debug.LogWarning("GUI Options null. Cannot query GUI Component state.");
             return;
         }
-        if (managerGUI == null)
+        if (Manager_Lookup.Instance.ManagerGUI == null)
         {
             Debug.LogWarning("GUI Options null. Cannot query GUI Component state.");
             return;
@@ -47,7 +47,7 @@ public class GUIComponent_AddComponent : GUIComponent, IPopulatable
         // Whenever anything is selected, it is set back to index 0.
         // This is because the onValueChanged callback only reacts when the value is changed, and setting invalid values causes other issues.
         List<string> options = new List<string>() { "Cancel" };
-        options.AddRange(managerGUI.NameList_Components.Values);
+        options.AddRange(Manager_Lookup.Instance.ManagerGUI.NameList_Components.Values);
         IPopulatable.Populate_Dropdown(controllerAddComponent.Dropdown, options);
     }
 }

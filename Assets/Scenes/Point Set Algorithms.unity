@@ -2118,7 +2118,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   useCullingMasks: 0
   positions3: []
-  posrots3: []
   wrapProxies3: []
   pointsParent: {fileID: 1213017755}
   pointType: 0
@@ -2656,15 +2655,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2071898895831363910, guid: 8b679fbcc7996204d9f9128cfb27c388, type: 3}
       propertyPath: m_Options.m_Options.Array.size
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2071898895831363910, guid: 8b679fbcc7996204d9f9128cfb27c388, type: 3}
       propertyPath: m_Options.m_Options.Array.data[0].m_Text
-      value: Wrap
+      value: Overflow
       objectReference: {fileID: 0}
     - target: {fileID: 2071898895831363910, guid: 8b679fbcc7996204d9f9128cfb27c388, type: 3}
       propertyPath: m_Options.m_Options.Array.data[1].m_Text
-      value: Overflow
+      value: Wrap
       objectReference: {fileID: 0}
     - target: {fileID: 2071898895831363910, guid: 8b679fbcc7996204d9f9128cfb27c388, type: 3}
       propertyPath: m_Options.m_Options.Array.data[2].m_Text

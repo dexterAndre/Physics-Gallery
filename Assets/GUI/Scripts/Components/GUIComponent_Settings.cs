@@ -1,4 +1,7 @@
+using System.Linq;
 using UnityEngine;
+using static BehaviorSpecifications;
+using static Manager_PointSet;
 
 
 
@@ -48,7 +51,8 @@ public class GUIComponent_Settings : GUIComponent, IPopulatable
 
     public void Populate()
     {
-        IPopulatable.Populate_Dropdown<BoundsType>(controllerBounds.Dropdown, Manager_Lookup.Instance.ManagerGUI.NameList_Bounds);
-        IPopulatable.Populate_Dropdown<EdgeResponse>(controllerEdgeResponse.Dropdown, Manager_Lookup.Instance.ManagerGUI.NameList_EdgeResponse);
+        IPopulatable.Populate_Dropdown(controllerBounds.Dropdown, BehaviorSpecifications.NameList_Bounds.Values.ToList());
+        // TODO: Decide when to use 2D vs. 3D version
+        IPopulatable.Populate_Dropdown(controllerEdgeResponse.Dropdown, BehaviorSpecifications.BehaviorSpecification<VoidDelegate_Int>.MethodNames<EdgeResponse, VoidDelegate_Int>(BehaviorSpecifications.EdgeResponseMethods, true));
     }
 }

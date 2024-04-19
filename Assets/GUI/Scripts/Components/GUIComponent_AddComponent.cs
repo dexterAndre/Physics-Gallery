@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static BehaviorSpecifications;
 
 public class GUIComponent_AddComponent : GUIComponent, IPopulatable
 {
@@ -47,7 +48,9 @@ public class GUIComponent_AddComponent : GUIComponent, IPopulatable
         // Whenever anything is selected, it is set back to index 0.
         // This is because the onValueChanged callback only reacts when the value is changed, and setting invalid values causes other issues.
         List<string> options = new List<string>() { "Cancel" };
-        options.AddRange(Manager_Lookup.Instance.ManagerGUI.NameList_Components.Values);
+        options.AddRange(BehaviorData.BehaviorNames(Manager_Lookup.Instance.ManagerGUI.Behaviors));
+        // TODO: Confirm that above functionality is functionally equivalent to below
+        //options.AddRange(Manager_Lookup.Instance.ManagerGUI.NameList_Components.Values.ToList());
         IPopulatable.Populate_Dropdown(controllerAddComponent.Dropdown, options);
     }
 }

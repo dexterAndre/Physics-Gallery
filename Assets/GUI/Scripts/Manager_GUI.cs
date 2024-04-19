@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static BehaviorSpecifications;
 
 
 
@@ -83,6 +84,41 @@ public struct PrefabCollection_Animation
     public GameObject springSystem;
 }
 
+[System.Serializable]
+public struct BehaviorData
+{
+    public string MethodName;
+    public GameObject ComponentPrefab;
+    public GUIComponent GUIComponent;
+    public PointBehavior PointBehavior;
+
+
+    public BehaviorData(string InMethodName, GameObject InComponentPrefab)
+    {
+        MethodName = InMethodName;
+        ComponentPrefab = InComponentPrefab;
+        GUIComponent = InComponentPrefab.GetComponent<GUIComponent>();
+        PointBehavior = InComponentPrefab.GetComponent<PointBehavior>();
+    }
+    public BehaviorData(string InMethodName, GameObject InComponentPrefab, GUIComponent InGUIComponent, PointBehavior InPointBehavior)
+    {
+        MethodName = InMethodName;
+        ComponentPrefab = InComponentPrefab;
+        GUIComponent = InGUIComponent;
+        PointBehavior = InPointBehavior;
+    }
+    public static List<string> BehaviorNames(Dictionary<BehaviorMethod, BehaviorData> InDictionary)
+    {
+        List<string> names = new List<string>();
+        foreach (KeyValuePair<BehaviorMethod, BehaviorData> item in InDictionary)
+        {
+            names.Add(item.Value.MethodName);
+        }
+
+        return names;
+    }
+}
+
 public class Manager_GUI : MonoBehaviour, IColorable
 {
     [Header("Color Palette")]
@@ -106,6 +142,20 @@ public class Manager_GUI : MonoBehaviour, IColorable
     [SerializeField] private PrefabCollection_Animation animations;
     [SerializeField] private PrefabCollection_Overlay overlays;
     [SerializeField] private PrefabCollection_Selector selectors;
+    private Dictionary<GenerationMethod, string> nameList_GenerationMethods = new Dictionary<GenerationMethod, string>()
+    {
+        { GenerationMethod.Random, "Random" },
+        { GenerationMethod.BlueNoise, "Blue Noise" },
+        { GenerationMethod.LatticeRectangular, "Rectangular Lattice" },
+        { GenerationMethod.LatticeHexagonal, "Hexagonal Lattice" },
+        { GenerationMethod.DoubleSlitDistribution, "Double Slit Distribution" },
+        { GenerationMethod.GaussianDistribution, "Gaussian Distribution" },
+        { GenerationMethod.Import, "Import" },
+    };
+    public Dictionary<GenerationMethod, string> NameList_GenerationMethods { get { return nameList_GenerationMethods; } }
+    // Initialize in OnEnable due to reading from inspector-populated structs
+    private Dictionary<BehaviorMethod, BehaviorData> behaviors = new Dictionary<BehaviorMethod, BehaviorData>();
+    public Dictionary<BehaviorMethod, BehaviorData> Behaviors { get { return behaviors; } }
 
     [Header("Dropdowns")]
     //[SerializeField] private GUIOption_DropdownGallery dropdownPresets;
@@ -113,114 +163,32 @@ public class Manager_GUI : MonoBehaviour, IColorable
     [SerializeField] private GUIOption_Dropdown dropdownEdgeResponse;
     [SerializeField] private GUIOption_Dropdown dropdownGenerateMethod;
 
-    // Dropdown labels
-
-
-    private Dictionary<BehaviorMethod, string> nameList_Components = new Dictionary<BehaviorMethod, string>()
-    {
-        // Overlay
-        //{ BehaviorMethod.Overlay_Web, "Web" },
-        //{ BehaviorMethod.Overlay_Triangulation, "Triangulation" },
-        //{ BehaviorMethod.Overlay_ConvexHull, "Convex Hull" },
-        //{ BehaviorMethod.Overlay_Voronoi, "Voronoi Diagram" },
-        //{ BehaviorMethod.Overlay_Duals, "Duals" },
-        //{ BehaviorMethod.Overlay_SpatialPartitioning, "Spatial Partitioning" },
-        //{ BehaviorMethod.Overlay_CenterOfMass, "Center of Mass" },
-        // Selection
-        //{ BehaviorMethod.Selector_ClosestToRay, "Closest to Ray" },
-        //{ BehaviorMethod.Selector_kMeansClustering, "k-Means Clustering" },
-        //{ BehaviorMethod.Selector_PointSetRegistration, "Point Set Registration" },
-        // Animation
-        { BehaviorMethod.Animate_Jitter, "Jitter" },
-        //{ BehaviorMethod.Animate_Flocking, "Flocking" },
-        //{ BehaviorMethod.Animate_VectorField, "Vector Field" },
-        //{ BehaviorMethod.Animate_WindSimulation, "Wind Simulation" },
-        { BehaviorMethod.Animate_StrangeAttractor, "Strange Attractor" },
-        //{ BehaviorMethod.Animate_LotkaVolterra, "Lotka-Volterra Equations" },
-        //{ BehaviorMethod.Animate_SpringSystem, "Spring System" },
-    };
-    public Dictionary<BehaviorMethod, string> NameList_Components { get { return nameList_Components; } }
-
-    // Component lookup - initialize in OnEnable
-    private Dictionary<BehaviorMethod, GameObject> ComponentsPrefab;
-    private Dictionary<BehaviorMethod, GUIComponent> ComponentsGUI;
-    private Dictionary<BehaviorMethod, PointBehavior> ComponentsBehavior;
-
 
 
     private void OnEnable()
     {
-        ComponentsPrefab = new Dictionary<BehaviorMethod, GameObject>()
+        behaviors = new Dictionary<BehaviorMethod, BehaviorData>()
         {
-            // Overlays
-            //{ BehaviorMethod.Overlay_Web, overlays.web },
-            //{ BehaviorMethod.Overlay_Triangulation, overlays.triangulation },
-            //{ BehaviorMethod.Overlay_ConvexHull, overlays.convexHull },
-            //{ BehaviorMethod.Overlay_VoronoiDiagram, overlays.voronoi },
-            //{ BehaviorMethod.Overlay_Duals, overlays.duals },
-            //{ BehaviorMethod.Overlay_SpatialPartitioning, overlays.spatialPartitioning },
-            //{ BehaviorMethod.Overlay_CenterOfMass, overlays.centerOfMass },
+            // Overlay
+            //{ BehaviorMethod.Overlay_Web, new BehaviorData("Web", overlays.web) },
+            //{ BehaviorMethod.Overlay_Triangulation, new BehaviorData("Triangulation", overlays.triangulation) },
+            //{ BehaviorMethod.Overlay_ConvexHull, new BehaviorData("Convex Hull", overlays.convexHull) },
+            //{ BehaviorMethod.Overlay_Voronoi, new BehaviorData("Voronoi Diagram", overlays.voronoi) },
+            //{ BehaviorMethod.Overlay_Duals, new BehaviorData("Duals", overlays.duals) },
+            //{ BehaviorMethod.Overlay_SpatialPartitioning, new BehaviorData("Spatial Partitioning", overlays.spatialPartitioning) },
+            //{ BehaviorMethod.Overlay_CenterOfMass, new BehaviorData("Center of Mass", overlays.centerOfMass) },
             // Selection
-            //{ BehaviorMethod.Selector_ClosestToRay, selectors.closestToRay },
-            //{ BehaviorMethod.Selector_kMeansClustering, selectors.kMeansClustering },
-            //{ BehaviorMethod.Selector_PointSetRegistration, selectors.pointSetRegistration },
+            //{ BehaviorMethod.Selector_ClosestToRay, new BehaviorData("Closest to Ray", selectors.closestToRay) },
+            //{ BehaviorMethod.Selector_kMeansClustering, new BehaviorData("k-Means Clustering", selectors.kMeansClustering) },
+            //{ BehaviorMethod.Selector_PointSetRegistration, new BehaviorData("Point Set Registration", selectors.pointSetRegistration) },
             // Animation
-            { BehaviorMethod.Animate_Jitter, animations.jitter },
-            //{ BehaviorMethod.Animate_Flocking, animations.flocking },
-            //{ BehaviorMethod.Animate_VectorField, animations.vectorField },
-            //{ BehaviorMethod.Animate_WindSimulation, animations.windSimulation },
-            { BehaviorMethod.Animate_StrangeAttractor, animations.strangeAttractor },
-            //{ BehaviorMethod.Animate_LotkaVolterra, animations.lotkaVolterra },
-            //{ BehaviorMethod.Animate_SpringSystem, animations.springSystem },
-        };
-
-        ComponentsGUI = new Dictionary<BehaviorMethod, GUIComponent>()
-        {
-            // Animation
-            { BehaviorMethod.Animate_Jitter, animations.jitter.GetComponent<GUIComponent_AnimateJitter>() },
-            //{ BehaviorMethod.Animate_Flocking, animations.flocking.GetComponent<GUIComponent_AnimateFlocking>() },
-            //{ BehaviorMethod.Animate_VectorField, animations.vectorField.GetComponent<GUIComponent_AnimateVectorField>() },
-            //{ BehaviorMethod.Animate_WindSimulation, animations.windSimulation.GetComponent<GUIComponent_AnimateWindSimulation>() },
-            { BehaviorMethod.Animate_StrangeAttractor, animations.strangeAttractor.GetComponent<GUIComponent_AnimateStrangeAttractor>() },
-            //{ BehaviorMethod.Animate_LotkaVolterra, animations.lotkaVolterra.GetComponent<GUIComponent_AnimateLotkaVolterra>() },
-            //{ BehaviorMethod.Animate_SpringSystem, animations.springSystem.GetComponent<GUIComponent_AnimateSpringSystem>() },
-            // Overlays
-            //{ BehaviorMethod.Overlay_Web, overlays.web.GetComponent<GUIComponent_OverlayWeb>() },
-            //{ BehaviorMethod.Overlay_Triangulation, overlays.triangulation.GetComponent<GUIComponent_OverlayTriangulation>() },
-            //{ BehaviorMethod.Overlay_ConvexHull, overlays.convexHull.GetComponent<GUIComponent_OverlayConvexHull>() },
-            //{ BehaviorMethod.Overlay_VoronoiDiagram, overlays.voronoi.GetComponent<GUIComponent_OverlayVoronoiDiagram>() },
-            //{ BehaviorMethod.Overlay_Duals, overlays.duals.GetComponent<GUIComponent_OverlayDuals>() },
-            //{ BehaviorMethod.Overlay_SpatialPartitioning, overlays.spatialPartitioning.GetComponent<GUIComponent_OverlaySpatialPartitioning>() },
-            //{ BehaviorMethod.Overlay_CenterOfMass, overlays.centerOfMass.GetComponent<GUIComponent_OverlayCenterOfMass>() },
-            // Selection
-            //{ BehaviorMethod.Selector_ClosestToRay, selectors.closestToRay.GetComponent<GUIComponent_SelectorClosestToRay>() },
-            //{ BehaviorMethod.Selector_kMeansClustering, selectors.kMeansClustering.GetComponent<GUIComponent_SelectorKMeansClustering>() },
-            //{ BehaviorMethod.Selector_PointSetRegistration, selectors.pointSetRegistration.GetComponent<GUIComponent_SelectorPointSetRegistration>() },
-        };
-
-        ComponentsBehavior = new Dictionary<BehaviorMethod, PointBehavior>()
-        {
-            // TODO: Rename to "Generate / Overlay / Selector / Animate"
-            // Overlays
-            //{ BehaviorMethod.Overlay_Web, overlays.web.GetComponent<PointBehavior_OverlayWeb>() },
-            //{ BehaviorMethod.Overlay_Triangulation, overlays.triangulation.GetComponent<PointBehavior_OverlayTriangulation>() },
-            //{ BehaviorMethod.Overlay_ConvexHull, overlays.convexHull.GetComponent<PointBehavior_OverlayConvexHull>() },
-            //{ BehaviorMethod.Overlay_VoronoiDiagram, overlays.voronoi.GetComponent<PointBehavior_OverlayVoronoiDiagram>() },
-            //{ BehaviorMethod.Overlay_Duals, overlays.duals.GetComponent<PointBehavior_OverlayDuals>() },
-            //{ BehaviorMethod.Overlay_SpatialPartitioning, overlays.spatialPartitioning.GetComponent<PointBehavior_OverlaySpatialPartitioning>() },
-            //{ BehaviorMethod.Overlay_CenterOfMass, overlays.centerOfMass.GetComponent<PointBehavior_OverlayCenterOfMass>() },
-            // Selection
-            //{ BehaviorMethod.Selector_ClosestToRay, selectors.closestToRay.GetComponent<PointBehavior_SelectorClosestToRay>() },
-            //{ BehaviorMethod.Selector_kMeansClustering, selectors.kMeansClustering.GetComponent<PointBehavior_SelectorKMeansClustering>() },
-            //{ BehaviorMethod.Selector_PointSetRegistration, selectors.pointSetRegistration.GetComponent<PointBehavior_SelectorPointSetRegistration>() },
-            // Animation
-            { BehaviorMethod.Animate_Jitter, animations.jitter.GetComponent<PointBehavior_AnimationJitter>() },
-            //{ BehaviorMethod.Animate_Flocking, animations.flocking.GetComponent<PointBehavior_AnimationFlocking>() },
-            //{ BehaviorMethod.Animate_VectorField, animations.vectorField.GetComponent<PointBehavior_AnimationVectorField>() },
-            //{ BehaviorMethod.Animate_WindSimulation, animations.windSimulation.GetComponent<PointBehavior_AnimationWindSimulation>() },
-            { BehaviorMethod.Animate_StrangeAttractor, animations.strangeAttractor.GetComponent<PointBehavior_AnimationStrangeAttractor>() },
-            //{ BehaviorMethod.Animate_LotkaVolterra, animations.lotkaVolterra.GetComponent<PointBehavior_AnimationLotkaVolterra>() },
-            //{ BehaviorMethod.Animate_SpringSystem, animations.springSystem.GetComponent<PointBehavior_AnimationSpringSystem>() },
+            { BehaviorMethod.Animate_Jitter, new BehaviorData("Jitter", animations.jitter) },
+            //{ BehaviorMethod.Animate_Flocking, new BehaviorData("Flocking", animations.flocking) },
+            //{ BehaviorMethod.Animate_VectorField, new BehaviorData("Vector Field", animations.vectorField) },
+            //{ BehaviorMethod.Animate_WindSimulation, new BehaviorData("Wind Simulation", animations.windSimulation) },
+            { BehaviorMethod.Animate_StrangeAttractor, new BehaviorData("Strange Attractor", animations.strangeAttractor) },
+            //{ BehaviorMethod.Animate_LotkaVolterra, new BehaviorData("Lotka-Volterra Equations", animations.lotkaVolterra) },
+            //{ BehaviorMethod.Animate_SpringSystem, new BehaviorData("Spring System", animations.springSystem) },
         };
     }
 
@@ -233,7 +201,7 @@ public class Manager_GUI : MonoBehaviour, IColorable
     public void AddComponent(BehaviorMethod method)
     {
         // GUI
-        GameObject go = Instantiate(ComponentsPrefab[method], componentParentAnimation);
+        GameObject go = Instantiate(Behaviors[method].ComponentPrefab, componentParentAnimation);
         GUIComponent compGUI = go.GetComponent<GUIComponent>();    // TODO: Do I need to downcast?
         if (compGUI == null)
         {

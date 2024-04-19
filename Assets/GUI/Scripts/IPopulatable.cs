@@ -16,9 +16,4 @@ public interface IPopulatable
         dropdown.RefreshShownValue();
         EditorUtility.SetDirty(dropdown);
     }
-
-    protected static void Populate_Dropdown<T>(TMP_Dropdown dropdown, Dictionary<T, string> nameList)
-    {
-        Populate_Dropdown(dropdown, nameList.Values.ToList());
-    }
 }

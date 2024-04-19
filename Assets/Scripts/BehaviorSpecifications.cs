@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static Manager_PointSet;
 
 [ExecuteAlways]
@@ -53,6 +54,17 @@ public class BehaviorSpecifications : MonoBehaviour
         {
             Behavior2D = new MethodNamed<T>(InBehavior2D, InName2D);
             Behavior3D = new MethodNamed<T>(InBehavior3D, InName3D);
+        }
+
+        public static List<string> MethodNames<T, U>(Dictionary<T, BehaviorSpecification<U>> InDictionary, bool Is2D)
+        {
+            List<string> names = new List<string>();
+            foreach (KeyValuePair<T, BehaviorSpecification<U>> item in InDictionary)
+            {
+                names.Add(Is2D ? item.Value.Behavior2D.Name : item.Value.Behavior3D.Name);
+            }
+
+            return names;
         }
     };
     #endregion
@@ -114,7 +126,7 @@ public class BehaviorSpecifications : MonoBehaviour
 
     #region Dictionaries
     // Functionless enum-name pairings
-    private Dictionary<BoundsType, string> nameList_Bounds = new Dictionary<BoundsType, string>
+    private static Dictionary<BoundsType, string> nameList_Bounds = new Dictionary<BoundsType, string>
     {
         { BoundsType.Square, "Square" },
         //{ BoundsType.Circle, "Circle" },
@@ -123,10 +135,10 @@ public class BehaviorSpecifications : MonoBehaviour
         //{ BoundsType.Sphere, "Sphere" },
         //{ BoundsType.Cone, "Cone" },
     };
-    public Dictionary<BoundsType, string> NameList_Bounds { get { return nameList_Bounds; } }
+    public static Dictionary<BoundsType, string> NameList_Bounds { get { return nameList_Bounds; } }
 
     // Full function tables
-    private Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>> edgeResponseMethods = new Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>>
+    private static Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>> edgeResponseMethods = new Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>>
     {
         { EdgeResponse.Overflow, new BehaviorSpecification<VoidDelegate_Int>("Overflow") },
         { EdgeResponse.Wrap, new BehaviorSpecification<VoidDelegate_Int>(
@@ -136,8 +148,8 @@ public class BehaviorSpecifications : MonoBehaviour
         //{ EdgeResponse.Kill, new BehaviorSpecification<VoidDelegate_Int>(Manager_Lookup.Instance.ManagerPointSet.KillPoint, "Kill") },
         //{ EdgeResponse.Respawn, new BehaviorSpecification<VoidDelegate_Int>(Manager_Lookup.Instance.ManagerPointSet.RespawnPoint2D, Manager_Lookup.Instance.ManagerPointSet.RespawnPoint3D, "Respawn")},
     };
-    public Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>> EdgeResponseMethods { get { return edgeResponseMethods; } }
-    private Dictionary<GenerationMethod, BehaviorSpecification<VoidDelegate_ZeroParameters>> generationMethods = new Dictionary<GenerationMethod, BehaviorSpecification<VoidDelegate_ZeroParameters>>
+    public static Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>> EdgeResponseMethods { get { return edgeResponseMethods; } }
+    private static Dictionary<GenerationMethod, BehaviorSpecification<VoidDelegate_ZeroParameters>> generationMethods = new Dictionary<GenerationMethod, BehaviorSpecification<VoidDelegate_ZeroParameters>>
     {
         { GenerationMethod.Random, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
             ManagerPointSet.GeneratePoints_Random2D,
@@ -169,5 +181,6 @@ public class BehaviorSpecifications : MonoBehaviour
             ManagerPointSet.GeneratePoints_Import,
             "Import") }
     };
+    public static Dictionary<GenerationMethod, BehaviorSpecification<VoidDelegate_ZeroParameters>> GenerationMethods { get { return generationMethods; } }
     #endregion
 }

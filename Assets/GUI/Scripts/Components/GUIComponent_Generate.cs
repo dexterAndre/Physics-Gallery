@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 
@@ -41,6 +42,6 @@ public class GUIComponent_Generate : GUIComponent, IPopulatable
 
     public void Populate()
     {
-        IPopulatable.Populate_Dropdown<GenerationMethod>(controllerMethod.Dropdown, Manager_Lookup.Instance.ManagerGUI.NameList_GenerationMethods);
+        IPopulatable.Populate_Dropdown(controllerMethod.Dropdown, Manager_Lookup.Instance.ManagerGUI.NameList_GenerationMethods.Values.ToList());
     }
 }

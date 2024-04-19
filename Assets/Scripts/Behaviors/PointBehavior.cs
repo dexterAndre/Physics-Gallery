@@ -17,7 +17,7 @@ public abstract class PointBehavior : MonoBehaviour
     public BehaviorType Type { get { return type; } }
 
     // TODO: Consider if returning only Vector3 is the suitable signature?
-    // Maybe void or List<Vector3> is appropriate for overlays, selectors, etc.
+    // Maybe void or List<Vector3> is appropriate for overlays, selections, etc.
 
     // Calculated on every update
     public abstract Vector3 UpdateBehavior(List<Vector3> InPoints, int ListIndex = -1);

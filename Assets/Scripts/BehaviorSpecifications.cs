@@ -102,13 +102,13 @@ public class BehaviorSpecifications : MonoBehaviour
     [System.Serializable] public enum BehaviorMethod
     {
         // Animation
-        Animate_Jitter,
-        //Animate_Flocking,
-        //Animate_VectorField,
-        //Animate_WindSimulation,
-        Animate_StrangeAttractor,
-        //Animate_LotkaVolterra,
-        //Animate_SpringSystem,
+        Animation_Jitter,
+        //Animation_Flocking,
+        //Animation_VectorField,
+        //Animation_WindSimulation,
+        Animation_StrangeAttractor,
+        //Animation_LotkaVolterra,
+        //Animation_SpringSystem,
         // Overlay
         //Overlay_Web,
         //Overlay_Triangulation,
@@ -118,9 +118,9 @@ public class BehaviorSpecifications : MonoBehaviour
         //Overlay_SpatialPartitioning,
         //Overlay_CenterOfMass,
         // Selection
-        //Selector_ClosestToRay,
-        //Selector_kMeansClustering,
-        //Selector_PointSetRegistration,
+        //Selection_ClosestToRay,
+        //Selection_kMeansClustering,
+        //Selection_PointSetRegistration,
     };
     #endregion
 

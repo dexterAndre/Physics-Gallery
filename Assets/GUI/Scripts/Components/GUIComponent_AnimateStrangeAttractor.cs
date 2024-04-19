@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GUIComponent_AnimateStrangeAttractor : GUIComponent, IPopulatable
+public class GUIComponent_AnimationStrangeAttractor : GUIComponent, IPopulatable
 {
     [SerializeField] private GUIOption_IncrementalSlider controllerSpeed;
     [SerializeField] private GUIOption_Dropdown controllerType;

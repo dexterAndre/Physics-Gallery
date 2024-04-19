@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GUIComponent_AnimateJitter : GUIComponent
+public class GUIComponent_AnimationJitter : GUIComponent
 {
     [SerializeField] private GUIOption_IncrementalSlider controllerSpeed;
     [SerializeField] private GUIOption_Toggle controllerNormalize;

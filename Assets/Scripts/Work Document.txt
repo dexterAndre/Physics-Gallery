@@ -75,7 +75,7 @@ def:    Default value indicator
 
 ################ Overlay #################
 
-################ Animate #################
+################ Animation #################
 
  V  "Animate using" def Jitter
     [V] "Jitter"

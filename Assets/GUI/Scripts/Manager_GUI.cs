@@ -66,7 +66,7 @@ public struct PrefabCollection_Overlay
     public GameObject centerOfMass;
 }
 [System.Serializable]
-public struct PrefabCollection_Selector
+public struct PrefabCollection_Selection
 {
     public GameObject closestToRay;
     public GameObject kMeansClustering;
@@ -134,14 +134,14 @@ public class Manager_GUI : MonoBehaviour, IColorable
     [SerializeField] private GUIComponent_Generate componentGenerate;
     [SerializeField] private Transform componentParentAnimation;
     [SerializeField] private Transform componentParentOverlay;
-    [SerializeField] private Transform componentParentSelector;
+    [SerializeField] private Transform componentParentSelection;
     [SerializeField] private GUIComponent_AddComponent componentAddComponent;
     [SerializeField] private Manager_PointSet managerPointSet;
 
     [Header("Components")]
     [SerializeField] private PrefabCollection_Animation animations;
     [SerializeField] private PrefabCollection_Overlay overlays;
-    [SerializeField] private PrefabCollection_Selector selectors;
+    [SerializeField] private PrefabCollection_Selection selections;
     // Initialize in OnEnable due to reading from inspector-populated structs
     private Dictionary<BehaviorMethod, BehaviorData> behaviors = new Dictionary<BehaviorMethod, BehaviorData>();
     public Dictionary<BehaviorMethod, BehaviorData> Behaviors { get { return behaviors; } }
@@ -167,17 +167,17 @@ public class Manager_GUI : MonoBehaviour, IColorable
             //{ BehaviorMethod.Overlay_SpatialPartitioning, new BehaviorData("Spatial Partitioning", overlays.spatialPartitioning) },
             //{ BehaviorMethod.Overlay_CenterOfMass, new BehaviorData("Center of Mass", overlays.centerOfMass) },
             // Selection
-            //{ BehaviorMethod.Selector_ClosestToRay, new BehaviorData("Closest to Ray", selectors.closestToRay) },
-            //{ BehaviorMethod.Selector_kMeansClustering, new BehaviorData("k-Means Clustering", selectors.kMeansClustering) },
-            //{ BehaviorMethod.Selector_PointSetRegistration, new BehaviorData("Point Set Registration", selectors.pointSetRegistration) },
+            //{ BehaviorMethod.Selection_ClosestToRay, new BehaviorData("Closest to Ray", selections.closestToRay) },
+            //{ BehaviorMethod.Selection_kMeansClustering, new BehaviorData("k-Means Clustering", selections.kMeansClustering) },
+            //{ BehaviorMethod.Selection_PointSetRegistration, new BehaviorData("Point Set Registration", selections.pointSetRegistration) },
             // Animation
-            { BehaviorMethod.Animate_Jitter, new BehaviorData("Jitter", animations.jitter) },
-            //{ BehaviorMethod.Animate_Flocking, new BehaviorData("Flocking", animations.flocking) },
-            //{ BehaviorMethod.Animate_VectorField, new BehaviorData("Vector Field", animations.vectorField) },
-            //{ BehaviorMethod.Animate_WindSimulation, new BehaviorData("Wind Simulation", animations.windSimulation) },
-            { BehaviorMethod.Animate_StrangeAttractor, new BehaviorData("Strange Attractor", animations.strangeAttractor) },
-            //{ BehaviorMethod.Animate_LotkaVolterra, new BehaviorData("Lotka-Volterra Equations", animations.lotkaVolterra) },
-            //{ BehaviorMethod.Animate_SpringSystem, new BehaviorData("Spring System", animations.springSystem) },
+            { BehaviorMethod.Animation_Jitter, new BehaviorData("Jitter", animations.jitter) },
+            //{ BehaviorMethod.Animation_Flocking, new BehaviorData("Flocking", animations.flocking) },
+            //{ BehaviorMethod.Animation_VectorField, new BehaviorData("Vector Field", animations.vectorField) },
+            //{ BehaviorMethod.Animation_WindSimulation, new BehaviorData("Wind Simulation", animations.windSimulation) },
+            { BehaviorMethod.Animation_StrangeAttractor, new BehaviorData("Strange Attractor", animations.strangeAttractor) },
+            //{ BehaviorMethod.Animation_LotkaVolterra, new BehaviorData("Lotka-Volterra Equations", animations.lotkaVolterra) },
+            //{ BehaviorMethod.Animation_SpringSystem, new BehaviorData("Spring System", animations.springSystem) },
         };
     }
 

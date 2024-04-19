@@ -835,7 +835,7 @@ MonoBehaviour:
   componentGenerate: {fileID: 1788478597}
   componentParentAnimation: {fileID: 987332050}
   componentParentOverlay: {fileID: 1057301969}
-  componentParentSelector: {fileID: 325416508}
+  componentParentSelection: {fileID: 0}
   componentAddComponent: {fileID: 1385976625}
   managerPointSet: {fileID: 1213017756}
   animations:
@@ -854,7 +854,7 @@ MonoBehaviour:
     duals: {fileID: 0}
     spatialPartitioning: {fileID: 0}
     centerOfMass: {fileID: 0}
-  selectors:
+  selections:
     closestToRay: {fileID: 0}
     kMeansClustering: {fileID: 0}
     pointSetRegistration: {fileID: 0}
@@ -3623,7 +3623,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6652229401806411555, guid: 8b679fbcc7996204d9f9128cfb27c388, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 32
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6652229401806411555, guid: 8b679fbcc7996204d9f9128cfb27c388, type: 3}
       propertyPath: m_SizeDelta.y

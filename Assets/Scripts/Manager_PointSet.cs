@@ -205,8 +205,8 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
     public List<PointBehavior> OverlayBehaviors { get { return overlayBehaviors; } }
     [SerializeField] private List<PointBehavior> selectionBehaviors = new List<PointBehavior>();
     public List<PointBehavior> SelectionBehaviors { get { return selectionBehaviors; } }
-    //[SerializeField] private List<PointBehavior_Animate> overlayBehaviors = new List<PointBehavior_Animate>();
-    //[SerializeField] private List<PointBehavior_Animate> selectionBehaviors = new List<PointBehavior_Animate>();
+    //[SerializeField] private List<PointBehavior_Animation> overlayBehaviors = new List<PointBehavior_Animation>();
+    //[SerializeField] private List<PointBehavior_Animation> selectionBehaviors = new List<PointBehavior_Animation>();
     [SerializeField]
     //private Dictionary<EdgeResponse, Action<int>> edgeResponseMethods = new Dictionary<EdgeResponse, Action<int>>();
     private Dictionary<EdgeResponse, VoidDelegate_Int> edgeResponseMethods = new Dictionary<EdgeResponse, VoidDelegate_Int>();
@@ -295,7 +295,7 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
 
         // 5.1 Initialize on first frame
 
-        // 6. Update all selector behaviors
+        // 6. Update all Selection behaviors
 
 
 
@@ -305,7 +305,7 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
         //    {
         //        Vector2 movement = Vector2.zero;
         //        Vector2 position = positions2[i];
-        //        foreach (PointBehavior_Animate animationBehavior in animationBehaviors)
+        //        foreach (PointBehavior_Animation animationBehavior in animationBehaviors)
         //        {
         //            movement += animationBehavior.UpdateBehavior(position);
         //        }
@@ -319,7 +319,7 @@ public class Manager_PointSet : ImmediateModeShapeDrawer
         //    {
         //        Vector3 movement = Vector3.zero;
         //        Vector3 position = positions3[i];
-        //        foreach (PointBehavior_Animate animationBehavior in animationBehaviors)
+        //        foreach (PointBehavior_Animation animationBehavior in animationBehaviors)
         //        {
         //            movement += animationBehavior.UpdateBehavior(position);
         //        }

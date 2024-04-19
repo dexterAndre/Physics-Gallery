@@ -1,5 +1,7 @@
 using System.Linq;
 using UnityEngine;
+using static BehaviorSpecifications;
+using static Manager_PointSet;
 
 
 
@@ -42,6 +44,7 @@ public class GUIComponent_Generate : GUIComponent, IPopulatable
 
     public void Populate()
     {
-        IPopulatable.Populate_Dropdown(controllerMethod.Dropdown, Manager_Lookup.Instance.ManagerGUI.NameList_GenerationMethods.Values.ToList());
+        // TODO: Decide when to use 2D vs. 3D version
+        IPopulatable.Populate_Dropdown(controllerMethod.Dropdown, BehaviorSpecifications.BehaviorSpecification<VoidDelegate_ZeroParameters>.MethodNames<GenerationMethod, VoidDelegate_ZeroParameters>(BehaviorSpecifications.GenerationMethods, true));
     }
 }

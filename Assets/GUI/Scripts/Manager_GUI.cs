@@ -142,17 +142,6 @@ public class Manager_GUI : MonoBehaviour, IColorable
     [SerializeField] private PrefabCollection_Animation animations;
     [SerializeField] private PrefabCollection_Overlay overlays;
     [SerializeField] private PrefabCollection_Selector selectors;
-    private Dictionary<GenerationMethod, string> nameList_GenerationMethods = new Dictionary<GenerationMethod, string>()
-    {
-        { GenerationMethod.Random, "Random" },
-        { GenerationMethod.BlueNoise, "Blue Noise" },
-        { GenerationMethod.LatticeRectangular, "Rectangular Lattice" },
-        { GenerationMethod.LatticeHexagonal, "Hexagonal Lattice" },
-        { GenerationMethod.DoubleSlitDistribution, "Double Slit Distribution" },
-        { GenerationMethod.GaussianDistribution, "Gaussian Distribution" },
-        { GenerationMethod.Import, "Import" },
-    };
-    public Dictionary<GenerationMethod, string> NameList_GenerationMethods { get { return nameList_GenerationMethods; } }
     // Initialize in OnEnable due to reading from inspector-populated structs
     private Dictionary<BehaviorMethod, BehaviorData> behaviors = new Dictionary<BehaviorMethod, BehaviorData>();
     public Dictionary<BehaviorMethod, BehaviorData> Behaviors { get { return behaviors; } }

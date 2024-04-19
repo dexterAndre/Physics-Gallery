@@ -151,35 +151,14 @@ public class BehaviorSpecifications : MonoBehaviour
     public static Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>> EdgeResponseMethods { get { return edgeResponseMethods; } }
     private static Dictionary<GenerationMethod, BehaviorSpecification<VoidDelegate_ZeroParameters>> generationMethods = new Dictionary<GenerationMethod, BehaviorSpecification<VoidDelegate_ZeroParameters>>
     {
-        { GenerationMethod.Random, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
-            ManagerPointSet.GeneratePoints_Random2D,
-            ManagerPointSet.GeneratePoints_Random3D,
-            "Random") },
-        { GenerationMethod.BlueNoise, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
-            ManagerPointSet.GeneratePoints_BlueNoise2D, 
-            ManagerPointSet.GeneratePoints_BlueNoise3D, 
-            "Blue Noise") },
-        { GenerationMethod.LatticeRectangular, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
-            ManagerPointSet.GeneratePoints_LatticeRectangular2D,
-            ManagerPointSet.GeneratePoints_LatticeRectangular3D,
-            "Lattice (Rectangular)") },
+        { GenerationMethod.Random, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_Random2D, ManagerPointSet.GeneratePoints_Random3D, "Random") },
+        //{ GenerationMethod.BlueNoise, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_BlueNoise2D, ManagerPointSet.GeneratePoints_BlueNoise3D, "Blue Noise") },
+        //{ GenerationMethod.LatticeRectangular, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_LatticeRectangular2D, ManagerPointSet.GeneratePoints_LatticeRectangular3D, "Lattice (Rectangular)") },
         // TODO: Check if possible to have a 3D version of this or just disable otherwise
-        { GenerationMethod.LatticeHexagonal, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
-            ManagerPointSet.GeneratePoints_LatticeHexagonal2D,
-            default(VoidDelegate_ZeroParameters),
-            "Lattice (Hexagonal)",
-            "N/A") },
-        { GenerationMethod.DoubleSlitDistribution, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
-            ManagerPointSet.GeneratePoints_DoubleSlitDistribution,
-            "Double Slit Distribution") },
-        { GenerationMethod.GaussianDistribution, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
-            ManagerPointSet.GeneratePoints_GaussianDistribution2D,
-            ManagerPointSet.GeneratePoints_GaussianDistribution3D,
-            "Gaussian Circle",
-            "Gaussian Sphere") },
-        { GenerationMethod.Import, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
-            ManagerPointSet.GeneratePoints_Import,
-            "Import") }
+        //{ GenerationMethod.LatticeHexagonal, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_LatticeHexagonal2D, default(VoidDelegate_ZeroParameters), "Lattice (Hexagonal)", "N/A") },
+        //{ GenerationMethod.DoubleSlitDistribution, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_DoubleSlitDistribution, "Double Slit Distribution") },
+        //{ GenerationMethod.GaussianDistribution, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_GaussianDistribution2D, ManagerPointSet.GeneratePoints_GaussianDistribution3D, "Gaussian Circle", "Gaussian Sphere") },
+        //{ GenerationMethod.Import, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_Import, "Import") }
     };
     public static Dictionary<GenerationMethod, BehaviorSpecification<VoidDelegate_ZeroParameters>> GenerationMethods { get { return generationMethods; } }
     #endregion

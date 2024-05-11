@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 using static Manager_PointSet;
 
 [ExecuteAlways]
@@ -125,20 +124,20 @@ public class BehaviorSpecifications : MonoBehaviour
     #endregion
 
     #region Dictionaries
-    // Functionless enum-name pairings
-    private static Dictionary<BoundsType, string> nameList_Bounds = new Dictionary<BoundsType, string>
+    // Enum-function lookup structs
+    // Contains user-facing names and optionally methods
+    // For both 2D and 3D versions (even if invalid)
+    private Dictionary<BoundsType, BehaviorSpecification<VoidDelegate_ZeroParameters>> boundsTypeMethods = new Dictionary<BoundsType, BehaviorSpecification<VoidDelegate_ZeroParameters>>
     {
-        { BoundsType.Square, "Square" },
-        //{ BoundsType.Circle, "Circle" },
-        //{ BoundsType.Sector, "Sector" },
-        { BoundsType.Cube, "Cube" },
-        //{ BoundsType.Sphere, "Sphere" },
-        //{ BoundsType.Cone, "Cone" },
+        { BoundsType.Square, new BehaviorSpecification<VoidDelegate_ZeroParameters>("Square") },
+        //{ BoundsType.Square, new BehaviorSpecification<VoidDelegate_ZeroParameters>("Square") },
+        //{ BoundsType.Square, new BehaviorSpecification<VoidDelegate_ZeroParameters>("Square") },
+        { BoundsType.Cube, new BehaviorSpecification<VoidDelegate_ZeroParameters>("Cube") },
+        //{ BoundsType.Square, new BehaviorSpecification<VoidDelegate_ZeroParameters>("Square") },
+        //{ BoundsType.Square, new BehaviorSpecification<VoidDelegate_ZeroParameters>("Square") },
     };
-    public static Dictionary<BoundsType, string> NameList_Bounds { get { return nameList_Bounds; } }
-
-    // Full function tables
-    private static Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>> edgeResponseMethods = new Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>>
+    public Dictionary<BoundsType, BehaviorSpecification<VoidDelegate_ZeroParameters>> BoundsTypeMethods { get { return boundsTypeMethods; } }
+    private Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>> edgeResponseMethods = new Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>>
     {
         { EdgeResponse.Overflow, new BehaviorSpecification<VoidDelegate_Int>("Overflow") },
         { EdgeResponse.Wrap, new BehaviorSpecification<VoidDelegate_Int>(
@@ -151,14 +150,35 @@ public class BehaviorSpecifications : MonoBehaviour
     public static Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>> EdgeResponseMethods { get { return edgeResponseMethods; } }
     private static Dictionary<GenerationMethod, BehaviorSpecification<VoidDelegate_ZeroParameters>> generationMethods = new Dictionary<GenerationMethod, BehaviorSpecification<VoidDelegate_ZeroParameters>>
     {
-        { GenerationMethod.Random, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_Random2D, ManagerPointSet.GeneratePoints_Random3D, "Random") },
-        //{ GenerationMethod.BlueNoise, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_BlueNoise2D, ManagerPointSet.GeneratePoints_BlueNoise3D, "Blue Noise") },
-        //{ GenerationMethod.LatticeRectangular, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_LatticeRectangular2D, ManagerPointSet.GeneratePoints_LatticeRectangular3D, "Lattice (Rectangular)") },
+        { GenerationMethod.Random, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
+            ManagerPointSet.GeneratePoints_Random2D,
+            ManagerPointSet.GeneratePoints_Random3D,
+            "Random") },
+        { GenerationMethod.BlueNoise, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
+            ManagerPointSet.GeneratePoints_BlueNoise2D, 
+            ManagerPointSet.GeneratePoints_BlueNoise3D, 
+            "Blue Noise") },
+        { GenerationMethod.LatticeRectangular, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
+            ManagerPointSet.GeneratePoints_LatticeRectangular2D,
+            ManagerPointSet.GeneratePoints_LatticeRectangular3D,
+            "Lattice (Rectangular)") },
         // TODO: Check if possible to have a 3D version of this or just disable otherwise
-        //{ GenerationMethod.LatticeHexagonal, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_LatticeHexagonal2D, default(VoidDelegate_ZeroParameters), "Lattice (Hexagonal)", "N/A") },
-        //{ GenerationMethod.DoubleSlitDistribution, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_DoubleSlitDistribution, "Double Slit Distribution") },
-        //{ GenerationMethod.GaussianDistribution, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_GaussianDistribution2D, ManagerPointSet.GeneratePoints_GaussianDistribution3D, "Gaussian Circle", "Gaussian Sphere") },
-        //{ GenerationMethod.Import, new BehaviorSpecification<VoidDelegate_ZeroParameters>(ManagerPointSet.GeneratePoints_Import, "Import") }
+        { GenerationMethod.LatticeHexagonal, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
+            ManagerPointSet.GeneratePoints_LatticeHexagonal2D,
+            default(VoidDelegate_ZeroParameters),
+            "Lattice (Hexagonal)",
+            "N/A") },
+        { GenerationMethod.DoubleSlitDistribution, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
+            ManagerPointSet.GeneratePoints_DoubleSlitDistribution,
+            "Double Slit Distribution") },
+        { GenerationMethod.GaussianDistribution, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
+            ManagerPointSet.GeneratePoints_GaussianDistribution2D,
+            ManagerPointSet.GeneratePoints_GaussianDistribution3D,
+            "Gaussian Circle",
+            "Gaussian Sphere") },
+        { GenerationMethod.Import, new BehaviorSpecification<VoidDelegate_ZeroParameters>(
+            ManagerPointSet.GeneratePoints_Import,
+            "Import") }
     };
     public static Dictionary<GenerationMethod, BehaviorSpecification<VoidDelegate_ZeroParameters>> GenerationMethods { get { return generationMethods; } }
     #endregion

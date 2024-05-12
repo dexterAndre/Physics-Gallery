@@ -127,17 +127,13 @@ public class BehaviorSpecifications : MonoBehaviour
     // Enum-function lookup structs
     // Contains user-facing names and optionally methods
     // For both 2D and 3D versions (even if invalid)
-    private Dictionary<BoundsType, BehaviorSpecification<VoidDelegate_ZeroParameters>> boundsTypeMethods = new Dictionary<BoundsType, BehaviorSpecification<VoidDelegate_ZeroParameters>>
+    private static Dictionary<BoundsType, BehaviorSpecification<VoidDelegate_ZeroParameters>> boundsTypeMethods = new Dictionary<BoundsType, BehaviorSpecification<VoidDelegate_ZeroParameters>>
     {
         { BoundsType.Square, new BehaviorSpecification<VoidDelegate_ZeroParameters>("Square") },
-        //{ BoundsType.Square, new BehaviorSpecification<VoidDelegate_ZeroParameters>("Square") },
-        //{ BoundsType.Square, new BehaviorSpecification<VoidDelegate_ZeroParameters>("Square") },
         { BoundsType.Cube, new BehaviorSpecification<VoidDelegate_ZeroParameters>("Cube") },
-        //{ BoundsType.Square, new BehaviorSpecification<VoidDelegate_ZeroParameters>("Square") },
-        //{ BoundsType.Square, new BehaviorSpecification<VoidDelegate_ZeroParameters>("Square") },
     };
-    public Dictionary<BoundsType, BehaviorSpecification<VoidDelegate_ZeroParameters>> BoundsTypeMethods { get { return boundsTypeMethods; } }
-    private Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>> edgeResponseMethods = new Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>>
+    public static Dictionary<BoundsType, BehaviorSpecification<VoidDelegate_ZeroParameters>> BoundsTypeMethods { get { return boundsTypeMethods; } }
+    private static Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>> edgeResponseMethods = new Dictionary<EdgeResponse, BehaviorSpecification<VoidDelegate_Int>>
     {
         { EdgeResponse.Overflow, new BehaviorSpecification<VoidDelegate_Int>("Overflow") },
         { EdgeResponse.Wrap, new BehaviorSpecification<VoidDelegate_Int>(

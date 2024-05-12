@@ -51,7 +51,8 @@ public class GUIComponent_Settings : GUIComponent, IPopulatable
 
     public void Populate()
     {
-        IPopulatable.Populate_Dropdown(controllerBounds.Dropdown, BehaviorSpecifications.NameList_Bounds.Values.ToList());
+        //IPopulatable.Populate_Dropdown(controllerBounds.Dropdown, BehaviorSpecifications.NameList_Bounds.Values.ToList());
+        IPopulatable.Populate_Dropdown(controllerBounds.Dropdown, BehaviorSpecifications.BehaviorSpecification<VoidDelegate_ZeroParameters>.MethodNames<BoundsType, VoidDelegate_ZeroParameters>(BehaviorSpecifications.BoundsTypeMethods, true));
         // TODO: Decide when to use 2D vs. 3D version
         IPopulatable.Populate_Dropdown(controllerEdgeResponse.Dropdown, BehaviorSpecifications.BehaviorSpecification<VoidDelegate_Int>.MethodNames<EdgeResponse, VoidDelegate_Int>(BehaviorSpecifications.EdgeResponseMethods, true));
     }

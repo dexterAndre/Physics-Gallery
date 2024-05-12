@@ -5593,7 +5593,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5616527149237751791, guid: bf804305bec5ab54b8c965604aef5662, type: 3}
       propertyPath: m_Options.m_Options.Array.size
-      value: 1
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 5616527149237751791, guid: bf804305bec5ab54b8c965604aef5662, type: 3}
       propertyPath: m_Options.m_Options.Array.data[0].m_Text
@@ -5605,11 +5605,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5616527149237751791, guid: bf804305bec5ab54b8c965604aef5662, type: 3}
       propertyPath: m_Options.m_Options.Array.data[2].m_Text
-      value: Rectangular Lattice
+      value: Lattice (Rectangular)
       objectReference: {fileID: 0}
     - target: {fileID: 5616527149237751791, guid: bf804305bec5ab54b8c965604aef5662, type: 3}
       propertyPath: m_Options.m_Options.Array.data[3].m_Text
-      value: Hexagonal Lattice
+      value: Lattice (Hexagonal)
       objectReference: {fileID: 0}
     - target: {fileID: 5616527149237751791, guid: bf804305bec5ab54b8c965604aef5662, type: 3}
       propertyPath: m_Options.m_Options.Array.data[4].m_Text
@@ -5617,7 +5617,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5616527149237751791, guid: bf804305bec5ab54b8c965604aef5662, type: 3}
       propertyPath: m_Options.m_Options.Array.data[5].m_Text
-      value: Gaussian Distribution
+      value: Gaussian Circle
       objectReference: {fileID: 0}
     - target: {fileID: 5616527149237751791, guid: bf804305bec5ab54b8c965604aef5662, type: 3}
       propertyPath: m_Options.m_Options.Array.data[6].m_Text
@@ -7114,7 +7114,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 292, y: 0}
+  m_AnchoredPosition: {x: 644, y: 0}
   m_SizeDelta: {x: 388, y: 544}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2147017077
